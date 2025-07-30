@@ -11,7 +11,7 @@ from ....schemas.user import UserCreate, UserResponse, UserLogin, Token
 from ....auth.utils import get_password_hash, verify_password, create_access_token
 from ....auth.dependencies import get_current_active_user
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter()
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Projects from './pages/Projects';
 import './App.css';
 
 function Navigation() {
@@ -29,6 +30,9 @@ function Navigation() {
           <>
             <li>
               <Link to="/dashboard">Dashboard</Link>
+            </li>
+            <li>
+              <Link to="/projects">Projects</Link>
             </li>
             <li>
               <span>Welcome, {user?.username}!</span>
@@ -64,6 +68,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <Projects />
             </ProtectedRoute>
           }
         />

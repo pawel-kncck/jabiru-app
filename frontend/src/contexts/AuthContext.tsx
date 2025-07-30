@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authService, UserResponse } from '../services/auth';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
+import { authService } from '../services/auth';
+import type { UserResponse } from '../services/auth';
 import api from '../services/api';
 
 interface AuthContextType {
@@ -11,7 +18,9 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -80,7 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (username: string, password: string) => {
     const response = await authService.login({ username, password });
     authService.setToken(response.access_token);
-    
+
     // Fetch user data after successful login
     const userData = await authService.getCurrentUser();
     setUser(userData);

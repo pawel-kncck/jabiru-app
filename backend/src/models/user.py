@@ -1,5 +1,6 @@
 """User model definition"""
 from sqlalchemy import Column, String, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 
@@ -19,6 +20,9 @@ class User(Base):
     last_name = Column(String(100), nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    projects = relationship("Project", back_populates="owner", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<User(username='{self.username}', email='{self.email}')>"

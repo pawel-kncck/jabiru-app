@@ -1,7 +1,9 @@
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance } from 'axios';
 
 // API base URL from environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1';
 
 // Create axios instance with default configuration
 const api: AxiosInstance = axios.create({
@@ -11,7 +13,6 @@ const api: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
 
 export default api;
 

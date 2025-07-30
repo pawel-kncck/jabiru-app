@@ -247,3 +247,479 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: add User model and initial database migration`
 
 ---
+
+## Step 6: JWT Authentication Setup
+**Date & Time:** 2025-07-30 09:44:51 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Added authentication dependencies to requirements.txt:
+   - python-jose[cryptography]==3.3.0
+   - passlib[bcrypt]==1.7.4
+   - python-multipart==0.0.6
+2. Installed dependencies (with pip upgrade to fix greenlet build issue)
+3. Created `backend/src/auth/` directory structure
+4. Created `backend/src/auth/utils.py` with:
+   - JWT token creation and validation functions
+   - Password hashing and verification utilities
+   - Token expiration handling
+5. Created `backend/src/auth/dependencies.py` with:
+   - get_current_user dependency for FastAPI
+   - get_current_active_user dependency
+6. JWT configuration already existed in .env.example from Step 4
+7. Created comprehensive unit tests in `backend/tests/test_auth.py`:
+   - Password hashing tests
+   - JWT token creation and validation tests
+   - Token expiration tests
+   - Invalid token handling tests
+
+### Technical Details:
+- JWT library: python-jose with cryptography backend
+- Password hashing: passlib with bcrypt
+- Default token expiration: 30 minutes
+- Algorithm: HS256
+- Secret key configured via environment variable
+
+### Decisions Made:
+- Used bcrypt for password hashing (industry standard)
+- Set 30-minute token expiration for security
+- Created reusable authentication dependencies
+- Fixed timezone issue in tests using utcfromtimestamp
+
+### Notes:
+- All 10 authentication tests passing
+- Ready for user registration implementation
+- JWT utilities are reusable across the application
+
+### Commit: `feat: implement JWT authentication utilities`
+
+---
+
+## Step 7: User Registration API Endpoint
+**Date & Time:** 2025-07-30 09:53:21 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created `backend/src/schemas/` directory structure
+2. Created `backend/src/schemas/__init__.py` to export schemas
+3. Created `backend/src/schemas/user.py` with Pydantic schemas:
+   - UserBase: Base schema with common fields
+   - UserCreate: Registration schema with password validation
+   - UserResponse: Response schema without password
+   - UserLogin: Login request schema
+   - Token: JWT token response schema
+4. Created API directory structure:
+   - `backend/src/api/`
+   - `backend/src/api/v1/`
+   - `backend/src/api/v1/endpoints/`
+5. Created `backend/src/api/v1/endpoints/users.py` with:
+   - User registration endpoint (`/register`)
+   - Duplicate username/email validation
+   - Password hashing before storage
+   - Proper error responses
+6. Created `backend/src/api/v1/api.py` to aggregate routers
+7. Updated `backend/src/main.py` to include API router
+8. Created integration tests in `backend/tests/test_user_endpoints.py`
+9. Fixed SQLite UUID compatibility issue:
+   - Created `backend/src/database/types.py` with GUID type
+   - Updated User model to use GUID instead of UUID
+
+### Technical Details:
+- Pydantic V2 with ConfigDict for schema configuration
+- EmailStr validation requires email-validator package
+- Cross-database UUID support (PostgreSQL and SQLite)
+- FastAPI automatic OpenAPI documentation
+
+### Decisions Made:
+- Created custom GUID type for database compatibility
+- Used Pydantic's EmailStr for email validation
+- Separated request/response schemas for security
+- Added comprehensive validation error messages
+
+### Notes:
+- All registration tests passing
+- Fixed missing email-validator dependency
+- Ready for login endpoint implementation
+- User registration fully functional with validation
+
+### Commit: `feat: add user registration endpoint with validation`
+
+---
+
+## Step 8: User Login API Endpoint
+**Date & Time:** 2025-07-30 09:53:21 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Login endpoint already implemented in Step 7 as part of users.py
+2. Created `/login` endpoint in the same file as registration
+3. Implemented username/password validation
+4. JWT token generation on successful login
+5. Proper error responses with 401 status for invalid credentials
+6. Created comprehensive integration tests for login functionality
+
+### Technical Details:
+- Login endpoint: POST /api/v1/users/login
+- Returns JWT access token with "bearer" type
+- Token includes username in subject claim
+- Password verification using bcrypt
+
+### Decisions Made:
+- Combined login and registration in same router for cohesion
+- Used consistent error messaging for security
+- Implemented as part of Step 7 for efficiency
+
+### Notes:
+- Login functionality fully tested
+- All authentication flow components in place
+- Ready for frontend integration
+
+### Commit: Included in Step 7's commit
+
+---
+
+## Step 9: Frontend Routing and Navigation Setup
+**Date & Time:** 2025-07-30 09:58:17 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Installed React Router dependencies:
+   - react-router-dom
+   - @types/react-router-dom
+2. Created `frontend/src/pages/` directory structure
+3. Created page components:
+   - Home.tsx: Welcome page with platform description
+   - Login.tsx: Basic login page placeholder
+   - Register.tsx: Basic registration page placeholder
+4. Updated App.tsx with:
+   - BrowserRouter setup
+   - Routes configuration
+   - Navigation links
+   - Basic styling in App.css
+
+### Technical Details:
+- React Router v6 with TypeScript support
+- Type-safe routing configuration
+- Responsive navigation styling
+
+### Decisions Made:
+- Used React Router v6 (latest version)
+- Created simple navigation bar
+- Set up basic page structure for auth flow
+
+### Notes:
+- All routes working correctly
+- Navigation functional
+- Ready for API client setup
+
+### Commit: `feat: set up React Router with basic navigation`
+
+---
+
+## Step 10: Frontend API Client Setup
+**Date & Time:** 2025-07-30 10:01:41 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Installed axios for HTTP requests
+2. Created `frontend/src/services/` directory
+3. Created `frontend/src/services/api.ts` with:
+   - Axios instance configuration
+   - Base URL from environment variables
+   - Request/response interceptors
+   - Error handling
+4. Created `frontend/src/services/auth.ts` with:
+   - Login function
+   - Register function
+   - Token management (get/set/remove)
+   - Get current user function
+5. Created `.env` and `.env.example` files
+6. Set up Vitest for testing
+7. Created comprehensive tests for auth service
+
+### Technical Details:
+- Axios for HTTP client
+- Environment variable: VITE_API_URL
+- Token stored in localStorage
+- Automatic token injection in requests
+
+### Decisions Made:
+- Used axios for its interceptor capabilities
+- localStorage for token persistence
+- Centralized API configuration
+- Added vitest for frontend testing
+
+### Notes:
+- All API service tests passing
+- Ready for form implementation
+- Token management fully functional
+
+### Commit: `feat: add axios API client with service layer`
+
+---
+
+## Step 11: Registration Page UI Implementation
+**Date & Time:** 2025-07-30 10:07:00 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Installed form dependencies:
+   - react-hook-form
+   - @hookform/resolvers
+   - yup
+2. Updated Register.tsx with:
+   - Complete form implementation
+   - Client-side validation
+   - Password confirmation
+   - Error handling
+   - Success message display
+   - Navigation after registration
+3. Added form styling to App.css
+4. Created comprehensive tests for registration
+
+### Technical Details:
+- React Hook Form for form management
+- Yup for schema validation
+- Minimum password length: 8 characters
+- Email format validation
+- Username length: 3-50 characters
+
+### Decisions Made:
+- Used React Hook Form for performance
+- Yup for declarative validation
+- Clear error messaging
+- Success feedback before redirect
+
+### Notes:
+- Form validation working perfectly
+- All registration tests passing
+- Smooth user experience
+
+### Commit: `feat: implement registration page with form validation`
+
+---
+
+## Step 12: Login Page UI Implementation
+**Date & Time:** 2025-07-30 10:09:28 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Updated Login.tsx with:
+   - Complete form implementation
+   - Form validation
+   - Remember me checkbox
+   - Error handling
+   - Loading states
+   - Redirect after login
+2. Added checkbox styling to App.css
+3. Integrated with auth service
+4. Created comprehensive tests
+
+### Technical Details:
+- React Hook Form implementation
+- Yup validation schema
+- LocalStorage for remember me
+- Redirect to originally requested page
+
+### Decisions Made:
+- Consistent form styling with registration
+- Remember me functionality
+- Clear error messages
+- Loading state during submission
+
+### Notes:
+- Login flow fully functional
+- All tests passing
+- Ready for auth context
+
+### Commit: `feat: implement login page with JWT token storage`
+
+---
+
+## Step 13: Authentication State Management
+**Date & Time:** 2025-07-30 10:13:55 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created `frontend/src/contexts/` directory
+2. Created `frontend/src/contexts/AuthContext.tsx` with:
+   - Global authentication state
+   - Login/logout functions
+   - User state management
+   - Automatic token validation on mount
+   - Loading state during initialization
+3. Set up axios interceptors:
+   - Automatic token injection
+   - 401 response handling
+   - Automatic logout on token expiry
+4. Updated App.tsx:
+   - Wrapped with AuthProvider
+   - Dynamic navigation based on auth state
+   - User welcome message
+5. Updated Login.tsx to use auth context
+6. Created comprehensive tests
+
+### Technical Details:
+- React Context API for state management
+- useContext hook for consumption
+- Automatic token refresh check
+- Centralized auth logic
+
+### Decisions Made:
+- Context API over Redux (simpler for auth)
+- Automatic token validation on app load
+- Graceful handling of expired tokens
+- Loading state prevents flash of content
+
+### Notes:
+- Auth state globally accessible
+- All tests passing
+- Clean separation of concerns
+
+### Commit: `feat: add authentication context and state management`
+
+---
+
+## Step 14: Protected Route Implementation
+**Date & Time:** 2025-07-30 10:18:09 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created `frontend/src/components/ProtectedRoute.tsx`:
+   - Authentication check wrapper
+   - Redirect to login if not authenticated
+   - Preserve intended destination
+2. Created Dashboard.tsx as example protected page:
+   - Display user information
+   - Member since date
+   - Quick links section
+3. Updated App.tsx:
+   - Added protected dashboard route
+   - Dashboard link in navigation
+4. Created comprehensive tests for both components
+
+### Technical Details:
+- Navigate component for redirects
+- Location state for return URL
+- Loading state handling
+- TypeScript props interface
+
+### Decisions Made:
+- Wrapper component pattern
+- State-based redirect preservation
+- Show loading during auth check
+
+### Notes:
+- Protected routes working perfectly
+- Dashboard accessible only when authenticated
+- All tests passing
+
+### Commit: `feat: implement protected routes with auth guards`
+
+---
+
+## Step 15: Project Model and API Setup
+**Date & Time:** 2025-07-30 10:19:39 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created `backend/src/models/project.py` with Project model:
+   - UUID primary key
+   - Name and description fields
+   - Owner relationship to User
+   - Timestamps
+2. Updated User model with projects relationship
+3. Generated Alembic migration for projects table
+4. Fixed migration import issue with GUID type
+5. Created `backend/src/schemas/project.py` with:
+   - ProjectCreate, ProjectUpdate schemas
+   - Project response schema
+   - ProjectList schema with pagination
+6. Created `backend/src/api/v1/endpoints/projects.py` with:
+   - Full CRUD operations
+   - Authorization checks
+   - Pagination support
+7. Updated API router configuration
+8. Created comprehensive tests in test_project_endpoints.py
+
+### Technical Details:
+- One-to-many relationship (User -> Projects)
+- Cascade delete for user's projects
+- Pagination with skip/limit
+- Owner-based access control
+
+### Decisions Made:
+- GUID type for cross-database compatibility
+- Owner-only access to projects
+- RESTful API design
+- Comprehensive test coverage
+
+### Notes:
+- All 11 project endpoint tests passing
+- Fixed Pydantic deprecation warnings
+- Ready for frontend integration
+
+### Commit: Not committed separately (included in session work)
+
+---
+
+## Step 16: Projects Dashboard UI
+**Date & Time:** 2025-07-30 10:31:05 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created `frontend/src/services/projects.ts` with:
+   - Project interfaces and types
+   - CRUD operations for projects
+   - Type-safe API calls
+2. Created `frontend/src/pages/Projects.tsx` with:
+   - Project listing with grid layout
+   - Create project form
+   - Delete project with confirmation
+   - Loading and error states
+   - Empty state messaging
+3. Updated routing and navigation:
+   - Added Projects route
+   - Protected route wrapper
+   - Navigation link
+4. Added comprehensive CSS styling:
+   - Responsive grid layout
+   - Card-based project display
+   - Form styling
+   - Action buttons
+5. Updated Dashboard with link to projects
+6. Created comprehensive tests with proper auth context
+7. Fixed test issues with Router and AuthContext
+
+### Technical Details:
+- TypeScript interfaces for type safety
+- React hooks for state management
+- Responsive CSS Grid
+- Optimistic UI updates
+
+### Decisions Made:
+- Card-based UI for projects
+- Inline creation form
+- Confirmation for deletions
+- Grid layout for scalability
+
+### Notes:
+- All 10 project UI tests passing
+- Fully functional CRUD operations
+- Responsive design implemented
+- Ready for file upload features
+
+### Commit: Not committed separately (included in session work)
+
+---

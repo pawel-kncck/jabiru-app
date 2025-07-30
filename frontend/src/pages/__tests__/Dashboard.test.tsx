@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import Dashboard from '../Dashboard';
 
 // Mock auth context
@@ -23,7 +24,11 @@ vi.mock('../../contexts/AuthContext', () => ({
 
 describe('Dashboard', () => {
   it('should render dashboard with user information', () => {
-    render(<Dashboard />);
+    render(
+      <BrowserRouter>
+        <Dashboard />
+      </BrowserRouter>
+    );
 
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText(`Welcome to your dashboard, ${mockUser.username}!`)).toBeInTheDocument();
@@ -34,7 +39,11 @@ describe('Dashboard', () => {
   });
 
   it('should display formatted member since date', () => {
-    render(<Dashboard />);
+    render(
+      <BrowserRouter>
+        <Dashboard />
+      </BrowserRouter>
+    );
 
     // Check that member since label is displayed
     expect(screen.getByText('Member since:')).toBeInTheDocument();
@@ -52,7 +61,11 @@ describe('Dashboard', () => {
       }),
     }));
 
-    render(<Dashboard />);
+    render(
+      <BrowserRouter>
+        <Dashboard />
+      </BrowserRouter>
+    );
 
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     // Should not crash when user is null
