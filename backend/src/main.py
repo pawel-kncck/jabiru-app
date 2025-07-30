@@ -1,8 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from dotenv import load_dotenv
 import os
+
+# Import our modules
+from .config import settings
+from .database.connection import test_connection
 
 # Load environment variables
 load_dotenv()
@@ -17,7 +21,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],  # Frontend URLs
+    allow_origins=settings.BACKEND_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,10 +37,14 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
+    # Test database connection
+    db_status = "healthy" if test_connection() else "unhealthy"
+    
     return {
         "status": "healthy",
         "service": "jabiru-backend",
-        "version": "0.1.0"
+        "version": "0.1.0",
+        "database": db_status
     }
 
 
