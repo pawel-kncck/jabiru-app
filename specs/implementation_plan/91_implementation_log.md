@@ -2,10 +2,15 @@
 
 This document tracks the implementation progress of the Jabiru MVP, recording each completed step along with any important decisions or deviations from the original plan.
 
+## Format Instructions
+- Always include timestamps in format: **Date & Time:** YYYY-MM-DD HH:MM:SS (Timezone)
+- Example: **Date & Time:** 2025-07-30 09:15:00 (CEST)
+- Use the system's local timezone for all timestamps
+
 ---
 
 ## Step 1: Initial Project Scaffolding
-**Date:** 2025-07-30
+**Date & Time:** 2025-07-30 08:40:04 (CEST)
 **Status:** ✅ Completed
 **Executor:** Agent
 
@@ -43,7 +48,7 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ---
 
 ## Step 2: Frontend React Application Setup
-**Date:** 2025-07-30
+**Date & Time:** 2025-07-30 08:47:49 (CEST)
 **Status:** ✅ Completed
 **Executor:** Agent & Human
 
@@ -80,7 +85,7 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ---
 
 ## Step 3: Backend FastAPI Application Setup
-**Date:** 2025-07-30
+**Date & Time:** 2025-07-30 08:58:28 (CEST)
 **Status:** ✅ Completed
 **Executor:** Agent & Human
 
@@ -127,5 +132,67 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 - Ready to proceed with Step 4: Database Setup with PostgreSQL Configuration
 
 ### Commit: `feat: initialize FastAPI backend with basic structure`
+
+---
+
+## Step 4: Database Setup with PostgreSQL Configuration
+**Date & Time:** 2025-07-30 09:08:37 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Added database dependencies to `requirements.txt`:
+   - sqlalchemy==2.0.23
+   - psycopg2-binary==2.9.9
+   - alembic==1.12.1
+2. Installed all database dependencies (with pip upgrade to handle greenlet build issue)
+3. Created `backend/src/database/` directory structure
+4. Created `backend/src/database/connection.py` with:
+   - SQLAlchemy engine configuration
+   - SessionLocal for database sessions
+   - Base class for declarative models
+   - `get_db` dependency function
+   - `test_connection` function for health checks
+5. Created `backend/src/config.py` for centralized configuration management:
+   - Settings class with all environment variables
+   - Database URL configuration
+   - JWT settings (for future use)
+   - CORS origins configuration
+6. Initialized Alembic for database migrations:
+   - Created `alembic.ini` configuration
+   - Updated `alembic/env.py` to use our database configuration
+   - Configured automatic model detection for migrations
+7. Updated `src/main.py` to:
+   - Use centralized settings
+   - Add database status to health check endpoint
+8. Created Docker Compose configuration:
+   - PostgreSQL 15 Alpine container
+   - Redis 7 Alpine container (for future use)
+   - Health checks for both services
+   - Persistent volumes for data
+9. Created `.env` file with local development settings
+10. Added unit tests for database configuration
+
+### Technical Details:
+- SQLAlchemy version: 2.0.23
+- PostgreSQL driver: psycopg2-binary 2.9.9
+- Alembic version: 1.12.1
+- Database connection: postgresql://jabiru_user:jabiru_password@localhost:5432/jabiru
+- Docker services: PostgreSQL 15 and Redis 7
+
+### Decisions Made:
+- Used SQLAlchemy 2.0 with modern syntax (declarative_base from orm)
+- Configured Alembic to read database URL from environment
+- Added Docker Compose for easy local database setup
+- Included Redis in Docker setup for future caching needs
+- Created centralized configuration management
+
+### Notes:
+- Database connection can be tested with `docker-compose up -d`
+- Health check endpoint now includes database status
+- Alembic is ready for creating migrations
+- Ready to proceed with Step 5: User Model and Database Schema
+
+### Commit: `feat: add PostgreSQL database configuration and connection`
 
 ---

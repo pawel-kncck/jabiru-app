@@ -15,6 +15,9 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.database.connection import Base
 from src.config import settings
 
+# Import all models to ensure they are registered with Base
+from src.models import User
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
