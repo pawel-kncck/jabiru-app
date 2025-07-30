@@ -196,3 +196,54 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: add PostgreSQL database configuration and connection`
 
 ---
+
+## Step 5: User Model and Database Schema
+**Date & Time:** 2025-07-30 09:30:39 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created `backend/src/models/` directory structure
+2. Created `backend/src/models/__init__.py` to export User model
+3. Created `backend/src/models/user.py` with User model:
+   - UUID primary key with auto-generation
+   - Username field (unique, indexed)
+   - Email field (unique, indexed)
+   - Password hash field for secure storage
+   - First and last name fields (optional)
+   - Created/updated timestamp fields
+   - String representation method
+   - Full name property with fallback logic
+4. Updated `backend/alembic/env.py` to import User model
+5. Started PostgreSQL database with Docker Compose
+6. Generated first Alembic migration:
+   - Migration ID: e7604fc1dfeb
+   - Created users table with all fields
+   - Added unique indexes on username and email
+7. Applied migration to database successfully
+8. Created unit tests for User model:
+   - Test model creation
+   - Test string representation
+   - Test full_name property with various scenarios
+
+### Technical Details:
+- User model uses PostgreSQL UUID type
+- Passwords stored as hashes (implementation pending)
+- Automatic timestamp updates on record modification
+- Database indexes for performance on lookup fields
+
+### Decisions Made:
+- Used UUID for primary keys for better security and scalability
+- Made first/last name optional fields
+- Added full_name property for convenience
+- Created comprehensive unit tests for model behavior
+
+### Notes:
+- Database table created successfully
+- Ready for authentication implementation in future steps
+- Model includes all necessary fields for user management
+- Ready to proceed with Step 6: JWT Authentication Implementation
+
+### Commit: `feat: add User model and initial database migration`
+
+---
