@@ -1,28 +1,12 @@
-import api from '../services/api';
+import api from './api';
+import type {
+  Project,
+  ProjectCreate,
+  ProjectUpdate,
+  ProjectList,
+} from '../types/project';
 
-export interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  owner_id: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ProjectCreate {
-  name: string;
-  description?: string;
-}
-
-export interface ProjectUpdate {
-  name?: string;
-  description?: string;
-}
-
-export interface ProjectList {
-  projects: Project[];
-  total: number;
-}
+export type { Project, ProjectCreate, ProjectUpdate, ProjectList };
 
 export const projectService = {
   async createProject(data: ProjectCreate): Promise<Project> {

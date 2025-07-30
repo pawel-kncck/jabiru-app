@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { projectService, Project, ProjectCreate } from '../services/projects';
+import { projectService } from '../services/projects';
+import type { Project, ProjectCreate } from '../types/project';
 
 const Projects: React.FC = () => {
   const { user } = useAuth();
@@ -66,7 +67,7 @@ const Projects: React.FC = () => {
 
     try {
       await projectService.deleteProject(projectId);
-      setProjects(projects.filter(p => p.id !== projectId));
+      setProjects(projects.filter((p) => p.id !== projectId));
       setTotal(total - 1);
     } catch (err) {
       setError('Failed to delete project');
@@ -89,12 +90,12 @@ const Projects: React.FC = () => {
   return (
     <div className="projects-container">
       <h1>My Projects</h1>
-      
+
       {error && <div className="error-message">{error}</div>}
-      
+
       <div className="projects-header">
         <p className="projects-count">Total Projects: {total}</p>
-        <button 
+        <button
           className="create-project-btn"
           onClick={() => setShowCreateForm(!showCreateForm)}
         >
@@ -111,7 +112,9 @@ const Projects: React.FC = () => {
               id="project-name"
               type="text"
               value={createFormData.name}
-              onChange={(e) => setCreateFormData({ ...createFormData, name: e.target.value })}
+              onChange={(e) =>
+                setCreateFormData({ ...createFormData, name: e.target.value })
+              }
               placeholder="Enter project name"
               required
             />
@@ -121,7 +124,12 @@ const Projects: React.FC = () => {
             <textarea
               id="project-description"
               value={createFormData.description}
-              onChange={(e) => setCreateFormData({ ...createFormData, description: e.target.value })}
+              onChange={(e) =>
+                setCreateFormData({
+                  ...createFormData,
+                  description: e.target.value,
+                })
+              }
               placeholder="Enter project description (optional)"
               rows={3}
             />
@@ -142,19 +150,21 @@ const Projects: React.FC = () => {
           {projects.map((project) => (
             <div key={project.id} className="project-card">
               <h3>{project.name}</h3>
-              {project.description && <p className="project-description">{project.description}</p>}
+              {project.description && (
+                <p className="project-description">{project.description}</p>
+              )}
               <div className="project-meta">
                 <span>Created: {formatDate(project.created_at)}</span>
                 <span>Updated: {formatDate(project.updated_at)}</span>
               </div>
               <div className="project-actions">
-                <button 
+                <button
                   className="view-btn"
                   onClick={() => navigate(`/projects/${project.id}`)}
                 >
                   View
                 </button>
-                <button 
+                <button
                   className="delete-btn"
                   onClick={() => handleDeleteProject(project.id)}
                 >
