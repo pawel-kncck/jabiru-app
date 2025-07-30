@@ -7,6 +7,7 @@ import os
 # Import our modules
 from .config import settings
 from .database.connection import test_connection
+from .api.v1.api import api_router
 
 # Load environment variables
 load_dotenv()
@@ -26,6 +27,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include API routers
+app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/")
