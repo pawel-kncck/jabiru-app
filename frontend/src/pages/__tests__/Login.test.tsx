@@ -2,10 +2,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Login from '../Login';
-import { authService } from '../../services/auth';
+import { AuthProvider } from '../../contexts/AuthContext';
 
-// Mock auth service
-vi.mock('../../services/auth');
+// Mock auth context
+const mockLogin = vi.fn();
+vi.mock('../../contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuth: () => ({
+    login: mockLogin,
+    isAuthenticated: false,
+    user: null,
+    isLoading: false,
+    logout: vi.fn(),
+    refreshUser: vi.fn(),
+  }),
+}));
 
 // Mock api module
 vi.mock('../../services/api', () => ({
@@ -50,6 +61,7 @@ const renderLogin = () => {
 describe('Login', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLogin.mockClear();
   });
 
   it('should render login form', () => {
@@ -74,9 +86,7 @@ describe('Login', () => {
   });
 
   it('should submit form with valid credentials', async () => {
-    const mockToken = { access_token: 'test-token', token_type: 'bearer' };
-    (authService.login as any).mockResolvedValue(mockToken);
-    (authService.setToken as any).mockImplementation(() => {});
+    mockLogin.mockResolvedValue(undefined);
 
     renderLogin();
 
@@ -91,11 +101,7 @@ describe('Login', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(authService.login).toHaveBeenCalledWith({
-        username: 'testuser',
-        password: 'password123',
-      });
-      expect(authService.setToken).toHaveBeenCalledWith('test-token');
+      expect(mockLogin).toHaveBeenCalledWith('testuser', 'password123');
       expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true });
     });
   });
@@ -109,7 +115,7 @@ describe('Login', () => {
         },
       },
     };
-    (authService.login as any).mockRejectedValue(axiosError);
+    mockLogin.mockRejectedValue(axiosError);
 
     renderLogin();
 
@@ -129,9 +135,7 @@ describe('Login', () => {
   });
 
   it('should handle remember me checkbox', async () => {
-    const mockToken = { access_token: 'test-token', token_type: 'bearer' };
-    (authService.login as any).mockResolvedValue(mockToken);
-    (authService.setToken as any).mockImplementation(() => {});
+    mockLogin.mockResolvedValue(undefined);
 
     const localStorageSetItemSpy = vi.spyOn(Storage.prototype, 'setItem');
 
@@ -157,7 +161,7 @@ describe('Login', () => {
   });
 
   it('should disable form during submission', async () => {
-    (authService.login as any).mockImplementation(
+    mockLogin.mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 1000))
     );
 

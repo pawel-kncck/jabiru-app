@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { authService } from '../services/auth';
+import { useAuth } from '../contexts/AuthContext';
 import { getErrorMessage } from '../services/api';
 
 // Validation schema
@@ -18,6 +18,7 @@ type FormData = yup.InferType<typeof schema>;
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,15 +41,9 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const response = await authService.login({
-        username: data.username,
-        password: data.password,
-      });
+      await login(data.username, data.password);
 
-      // Store token
-      authService.setToken(response.access_token);
-
-      // If remember me is checked, store in localStorage instead of sessionStorage
+      // If remember me is checked, store in localStorage
       if (data.rememberMe) {
         localStorage.setItem('rememberMe', 'true');
       }
