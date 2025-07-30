@@ -995,3 +995,76 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: add Canvas model with basic CRUD operations`
 
 ---
+
+## Step 21: Canvas Editor UI Foundation
+**Date & Time:** 2025-07-30 14:31:07 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created CanvasEditor page component (`frontend/src/pages/CanvasEditor.tsx`):
+   - Three-panel layout structure
+   - Canvas data loading from backend
+   - Auto-save functionality with 2-second debounce
+   - Save status indicators (saved/saving/unsaved)
+   - Navigation back to project
+   - Block state management
+2. Created Canvas Editor CSS (`frontend/src/pages/CanvasEditor.css`):
+   - Header styling with save indicators
+   - Three-panel flex layout
+   - Responsive design
+   - Visual feedback for save states
+3. Created BlockLibrary component (`frontend/src/components/Canvas/BlockLibrary.tsx`):
+   - Displays available block types (Text, Chart)
+   - Drag-and-drop support
+   - Visual hover effects
+   - Block descriptions
+4. Created CanvasArea component (`frontend/src/components/Canvas/CanvasArea.tsx`):
+   - Grid background pattern
+   - Drop zone for new blocks
+   - Block rendering with absolute positioning
+   - Click to select blocks
+   - Visual selection indicators
+   - Empty state messaging
+5. Created PropertiesPanel component (`frontend/src/components/Canvas/PropertiesPanel.tsx`):
+   - Display selected block properties
+   - Edit position (X, Y coordinates)
+   - Edit size (width, height)
+   - Edit content (text for text blocks, chart type for charts)
+   - Real-time updates
+6. Added comprehensive CSS for all components:
+   - BlockLibrary.css - Sidebar styling
+   - CanvasArea.css - Canvas grid and block styling
+   - PropertiesPanel.css - Properties form styling
+7. Updated routing in App.tsx:
+   - Added CanvasEditor route with canvas ID parameter
+   - Protected route with authentication
+8. Created comprehensive unit tests:
+   - Tests for all three canvas components
+   - Drag-and-drop functionality tests
+   - Property update tests
+   - Selection behavior tests
+
+### Technical Details:
+- Block interface with type, position, size, and content
+- Drag-and-drop using HTML5 drag events
+- Auto-save using useEffect with cleanup
+- Absolute positioning for blocks on canvas
+- Real-time property updates
+
+### Decisions Made:
+- Three-panel layout for intuitive UI
+- 2-second debounce for auto-save to balance performance
+- Visual grid pattern for canvas alignment
+- Minimum block size of 50px
+- Text and Chart as initial block types
+
+### Notes:
+- Canvas editor UI foundation complete
+- Ready for drag-and-drop implementation
+- All components properly styled and tested
+- Auto-save functionality working smoothly
+
+### Commit: `feat: implement canvas editor UI with three-panel layout`
+
+---

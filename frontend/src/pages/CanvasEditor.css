@@ -1,0 +1,98 @@
+.canvas-editor {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+.canvas-editor-loading,
+.canvas-editor-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.canvas-header {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.canvas-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.canvas-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #646cff;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
+.save-indicator {
+  font-size: 14px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background-color: #f0f0f0;
+}
+
+.save-indicator.saved {
+  color: #4caf50;
+  background-color: #e8f5e9;
+}
+
+.save-indicator.saving {
+  color: #ff9800;
+  background-color: #fff3e0;
+}
+
+.save-indicator.unsaved {
+  color: #f44336;
+  background-color: #ffebee;
+}
+
+.save-button {
+  background-color: #646cff;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: #535bf2;
+}
+
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.canvas-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}

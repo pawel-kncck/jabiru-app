@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 import { ProjectDetail } from './pages/ProjectDetail';
+import { CanvasEditor } from './pages/CanvasEditor';
 import './App.css';
 
 function Navigation() {
@@ -85,6 +86,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <ProjectDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/canvas/:canvasId"
+          element={
+            <ProtectedRoute>
+              <CanvasEditor />
             </ProtectedRoute>
           }
         />
