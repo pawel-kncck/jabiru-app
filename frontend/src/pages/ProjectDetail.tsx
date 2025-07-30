@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { projectService } from '../services/projects';
-import { filesService, FileInfo } from '../services/files';
-import { canvasService, Canvas } from '../services/canvas';
+import { filesService } from '../services/files';
+import type { FileInfo } from '../services/files';
+import { canvasService } from '../services/canvas';
+import type { Canvas } from '../services/canvas';
 import { FileUpload } from '../components/FileUpload';
 import { DataPreview } from '../components/DataPreview';
 import type { Project } from '../services/projects';
@@ -12,7 +14,7 @@ export function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [project, setProject] = useState<Project | null>(null);
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [canvases, setCanvases] = useState<Canvas[]>([]);
@@ -32,15 +34,15 @@ export function ProjectDetail() {
 
   const loadProjectData = async () => {
     if (!projectId) return;
-    
+
     try {
       setLoading(true);
       const [projectData, filesData, canvasesData] = await Promise.all([
         projectService.getProject(projectId),
         filesService.listProjectFiles(projectId),
-        canvasService.listCanvases(projectId)
+        canvasService.listCanvases(projectId),
       ]);
-      
+
       setProject(projectData);
       setFiles(filesData.files);
       setCanvases(canvasesData.canvases);
@@ -60,11 +62,11 @@ export function ProjectDetail() {
     if (!window.confirm('Are you sure you want to delete this file?')) {
       return;
     }
-    
+
     try {
       setDeletingFileId(fileId);
       await filesService.deleteFile(fileId);
-      setFiles(files.filter(f => f.id !== fileId));
+      setFiles(files.filter((f) => f.id !== fileId));
     } catch (err) {
       alert('Failed to delete file');
       console.error(err);
@@ -76,11 +78,11 @@ export function ProjectDetail() {
   const handleCreateCanvas = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canvasName.trim() || !projectId) return;
-    
+
     try {
       setCreatingCanvas(true);
       const newCanvas = await canvasService.createCanvas(projectId, {
-        name: canvasName.trim()
+        name: canvasName.trim(),
       });
       setCanvases([...canvases, newCanvas]);
       setCanvasName('');
@@ -97,10 +99,10 @@ export function ProjectDetail() {
     if (!window.confirm('Are you sure you want to delete this canvas?')) {
       return;
     }
-    
+
     try {
       await canvasService.deleteCanvas(canvasId);
-      setCanvases(canvases.filter(c => c.id !== canvasId));
+      setCanvases(canvases.filter((c) => c.id !== canvasId));
     } catch (err) {
       alert('Failed to delete canvas');
       console.error(err);
@@ -123,20 +125,19 @@ export function ProjectDetail() {
   return (
     <div className="project-detail">
       <div className="project-header">
-        <button 
-          className="back-button"
-          onClick={() => navigate('/projects')}
-        >
+        <button className="back-button" onClick={() => navigate('/projects')}>
           ← Back to Projects
         </button>
         <h1>{project.name}</h1>
-        {project.description && <p className="project-description">{project.description}</p>}
+        {project.description && (
+          <p className="project-description">{project.description}</p>
+        )}
       </div>
 
       <div className="project-content">
         <section className="file-upload-section">
           <h2>Upload Data</h2>
-          <FileUpload 
+          <FileUpload
             projectId={project.id}
             onUploadSuccess={handleFileUploadSuccess}
           />
@@ -145,31 +146,33 @@ export function ProjectDetail() {
         <section className="files-section">
           <h2>Uploaded Files ({files.length})</h2>
           {files.length === 0 ? (
-            <p className="no-files">No files uploaded yet. Upload a CSV file to get started!</p>
+            <p className="no-files">
+              No files uploaded yet. Upload a CSV file to get started!
+            </p>
           ) : (
             <div className="files-list">
-              {files.map(file => (
+              {files.map((file) => (
                 <div key={file.id} className="file-item">
                   <div className="file-info">
                     <span className="file-icon">📄</span>
                     <div className="file-details">
                       <h3>{file.filename}</h3>
                       <p>
-                        {filesService.formatFileSize(file.size)} • 
-                        Uploaded {new Date(file.created_at).toLocaleDateString()}
+                        {filesService.formatFileSize(file.size)} • Uploaded{' '}
+                        {new Date(file.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="file-actions">
                     {filesService.isCSVFile(file.filename) && (
-                      <button 
+                      <button
                         className="button-secondary"
                         onClick={() => setPreviewFileId(file.id)}
                       >
                         Preview
                       </button>
                     )}
-                    <button 
+                    <button
                       className="button-danger"
                       onClick={() => handleDeleteFile(file.id)}
                       disabled={deletingFileId === file.id}
@@ -186,14 +189,14 @@ export function ProjectDetail() {
         <section className="canvases-section">
           <div className="section-header">
             <h2>Canvases ({canvases.length})</h2>
-            <button 
+            <button
               className="button-primary"
               onClick={() => setShowCreateCanvas(!showCreateCanvas)}
             >
               {showCreateCanvas ? 'Cancel' : 'New Canvas'}
             </button>
           </div>
-          
+
           {showCreateCanvas && (
             <form className="create-canvas-form" onSubmit={handleCreateCanvas}>
               <input
@@ -203,8 +206,8 @@ export function ProjectDetail() {
                 onChange={(e) => setCanvasName(e.target.value)}
                 required
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={creatingCanvas}
                 className="button-primary"
               >
@@ -212,25 +215,27 @@ export function ProjectDetail() {
               </button>
             </form>
           )}
-          
+
           {canvases.length === 0 ? (
-            <p className="no-canvases">No canvases yet. Create a canvas to start analyzing your data!</p>
+            <p className="no-canvases">
+              No canvases yet. Create a canvas to start analyzing your data!
+            </p>
           ) : (
             <div className="canvases-grid">
-              {canvases.map(canvas => (
+              {canvases.map((canvas) => (
                 <div key={canvas.id} className="canvas-card">
                   <h3>{canvas.name}</h3>
                   <p className="canvas-meta">
                     Created {new Date(canvas.created_at).toLocaleDateString()}
                   </p>
                   <div className="canvas-actions">
-                    <button 
+                    <button
                       className="button-primary"
                       onClick={() => navigate(`/canvas/${canvas.id}`)}
                     >
                       Open
                     </button>
-                    <button 
+                    <button
                       className="button-danger"
                       onClick={() => handleDeleteCanvas(canvas.id)}
                     >
@@ -243,11 +248,11 @@ export function ProjectDetail() {
           )}
         </section>
       </div>
-      
+
       {previewFileId && (
-        <DataPreview 
-          fileId={previewFileId} 
-          onClose={() => setPreviewFileId(null)} 
+        <DataPreview
+          fileId={previewFileId}
+          onClose={() => setPreviewFileId(null)}
         />
       )}
     </div>

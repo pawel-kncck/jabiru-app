@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { canvasService, Canvas } from '../services/canvas';
+import { canvasService } from '../services/canvas';
+import type { Canvas } from '../services/canvas';
 import { projectService } from '../services/projects';
 import { CanvasArea } from '../components/Canvas/CanvasArea';
 import { BlockLibrary } from '../components/Canvas/BlockLibrary';
@@ -21,7 +22,7 @@ export function CanvasEditor() {
   const { canvasId } = useParams<{ canvasId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -41,16 +42,18 @@ export function CanvasEditor() {
 
   const loadCanvas = async () => {
     if (!canvasId) return;
-    
+
     try {
       setLoading(true);
       const canvasData = await canvasService.getCanvas(canvasId);
       setCanvas(canvasData);
       setBlocks(canvasData.content_json.blocks || []);
       setLastSaved(new Date(canvasData.updated_at));
-      
+
       // Load project data
-      const projectData = await projectService.getProject(canvasData.project_id);
+      const projectData = await projectService.getProject(
+        canvasData.project_id
+      );
       setProject(projectData);
     } catch (err) {
       setError('Failed to load canvas');
@@ -67,7 +70,7 @@ export function CanvasEditor() {
 
   const handleDeleteBlock = () => {
     if (selectedBlockId) {
-      const newBlocks = blocks.filter(b => b.id !== selectedBlockId);
+      const newBlocks = blocks.filter((b) => b.id !== selectedBlockId);
       setBlocks(newBlocks);
       setSelectedBlockId(null);
       setHasUnsavedChanges(true);
@@ -79,12 +82,16 @@ export function CanvasEditor() {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Delete block
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedBlockId && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        if (
+          selectedBlockId &&
+          document.activeElement?.tagName !== 'INPUT' &&
+          document.activeElement?.tagName !== 'TEXTAREA'
+        ) {
           e.preventDefault();
           handleDeleteBlock();
         }
       }
-      
+
       // Manual save
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
@@ -98,7 +105,7 @@ export function CanvasEditor() {
 
   const handleSave = async (isRetry = false) => {
     if (!canvasId || isSaving) return;
-    
+
     try {
       setIsSaving(true);
       setSaveError(null);
@@ -108,7 +115,7 @@ export function CanvasEditor() {
     } catch (err) {
       console.error('Failed to save canvas:', err);
       setSaveError('Failed to save changes');
-      
+
       // Retry once after a delay
       if (!isRetry) {
         setTimeout(() => {
@@ -123,34 +130,34 @@ export function CanvasEditor() {
   // Auto-save after 2 seconds of inactivity
   useEffect(() => {
     if (!hasUnsavedChanges) return;
-    
+
     const timer = setTimeout(() => {
       handleSave();
     }, 2000);
-    
+
     return () => clearTimeout(timer);
   }, [blocks, hasUnsavedChanges]);
 
   // Update last saved display every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setLastSaved(prev => prev ? new Date(prev) : null);
+      setLastSaved((prev) => (prev ? new Date(prev) : null));
     }, 30000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
   const formatLastSaved = (date: Date | null) => {
     if (!date) return '';
-    
+
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
+
     if (seconds < 5) return 'just now';
     if (seconds < 60) return `${seconds}s ago`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    
+
     return date.toLocaleDateString();
   };
 
@@ -171,19 +178,35 @@ export function CanvasEditor() {
     <div className="canvas-editor">
       <div className="canvas-header">
         <div className="canvas-header-left">
-          <button 
+          <button
             className="back-button"
             onClick={() => navigate(`/projects/${project.id}`)}
           >
             ← Back to {project.name}
           </button>
           <h1>{canvas.name}</h1>
-          <span className={`save-indicator ${saveError ? 'error' : isSaving ? 'saving' : hasUnsavedChanges ? 'unsaved' : 'saved'}`}>
-            {saveError ? saveError : isSaving ? 'Saving...' : hasUnsavedChanges ? 'Unsaved changes' : `All changes saved ${formatLastSaved(lastSaved)}`}
+          <span
+            className={`save-indicator ${
+              saveError
+                ? 'error'
+                : isSaving
+                ? 'saving'
+                : hasUnsavedChanges
+                ? 'unsaved'
+                : 'saved'
+            }`}
+          >
+            {saveError
+              ? saveError
+              : isSaving
+              ? 'Saving...'
+              : hasUnsavedChanges
+              ? 'Unsaved changes'
+              : `All changes saved ${formatLastSaved(lastSaved)}`}
           </span>
         </div>
         <div className="canvas-header-right">
-          <button 
+          <button
             className="save-button"
             onClick={handleSave}
             disabled={!hasUnsavedChanges || isSaving}
@@ -192,21 +215,21 @@ export function CanvasEditor() {
           </button>
         </div>
       </div>
-      
+
       <div className="canvas-content">
         <BlockLibrary />
-        
+
         <CanvasArea
           blocks={blocks}
           selectedBlockId={selectedBlockId}
           onBlocksChange={handleBlocksChange}
           onBlockSelect={setSelectedBlockId}
         />
-        
+
         <PropertiesPanel
-          block={blocks.find(b => b.id === selectedBlockId)}
+          block={blocks.find((b) => b.id === selectedBlockId)}
           onBlockUpdate={(updatedBlock) => {
-            const newBlocks = blocks.map(b => 
+            const newBlocks = blocks.map((b) =>
               b.id === updatedBlock.id ? updatedBlock : b
             );
             handleBlocksChange(newBlocks);
