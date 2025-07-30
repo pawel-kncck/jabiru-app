@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import type { Block } from '../../pages/CanvasEditor';
+import { DraggableBlock } from './DraggableBlock';
 import './CanvasArea.css';
 
 interface CanvasAreaProps {
@@ -84,28 +85,18 @@ export function CanvasArea({ blocks, selectedBlockId, onBlocksChange, onBlockSel
       )}
 
       {blocks.map(block => (
-        <div
+        <DraggableBlock
           key={block.id}
-          className={`canvas-block ${block.type} ${selectedBlockId === block.id ? 'selected' : ''}`}
-          style={{
-            left: block.position.x,
-            top: block.position.y,
-            width: block.size.width,
-            height: block.size.height
+          block={block}
+          isSelected={selectedBlockId === block.id}
+          onBlockUpdate={(updatedBlock) => {
+            const newBlocks = blocks.map(b => 
+              b.id === updatedBlock.id ? updatedBlock : b
+            );
+            onBlocksChange(newBlocks);
           }}
-          onClick={(e) => handleBlockClick(block.id, e)}
-        >
-          {block.type === 'text' ? (
-            <div className="text-block-content">
-              {block.content.text || 'Empty text block'}
-            </div>
-          ) : (
-            <div className="chart-block-content">
-              <span className="chart-icon">📊</span>
-              <p>Chart: {block.content.chartType || 'bar'}</p>
-            </div>
-          )}
-        </div>
+          onBlockSelect={onBlockSelect}
+        />
       ))}
     </div>
   );

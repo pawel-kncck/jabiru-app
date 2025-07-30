@@ -1068,3 +1068,62 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: implement canvas editor UI with three-panel layout`
 
 ---
+
+## Step 22: Drag and Drop Implementation
+**Date & Time:** 2025-07-30 14:43:52 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Installed drag and drop libraries:
+   - @dnd-kit/sortable
+   - @dnd-kit/core
+   - @dnd-kit/utilities
+2. Created DraggableBlock component (`frontend/src/components/Canvas/DraggableBlock.tsx`):
+   - Mouse-based drag and drop within canvas
+   - Block resizing with 8 resize handles (corners and edges)
+   - Snap-to-grid functionality (10px grid by default)
+   - Keyboard navigation (arrow keys with Shift for larger steps)
+   - Visual feedback during drag (opacity, shadow, cursor)
+3. Added DraggableBlock styles (`frontend/src/components/Canvas/DraggableBlock.css`):
+   - Drag state visual indicators
+   - Resize handle styling
+   - Cursor changes for different states
+   - Focus indicators for keyboard navigation
+4. Updated CanvasArea component:
+   - Integrated DraggableBlock for existing blocks
+   - Maintained drop zone for new blocks from library
+   - Block update handling
+5. Enhanced CanvasEditor with keyboard shortcuts:
+   - Delete/Backspace to remove selected blocks
+   - Prevented deletion when typing in inputs
+   - Auto-deselect after deletion
+6. Created comprehensive tests:
+   - Drag behavior tests
+   - Resize functionality tests
+   - Keyboard navigation tests
+   - Selection behavior tests
+
+### Technical Details:
+- Native mouse events for drag implementation
+- useEffect with cleanup for global mouse listeners
+- Grid snapping using modulo arithmetic
+- Minimum block size enforcement (50px)
+- Position constraints (no negative values)
+
+### Decisions Made:
+- Used native drag implementation instead of dnd-kit for more control
+- 10px grid size for good balance of precision and alignment
+- 8 resize handles for maximum flexibility
+- Keyboard navigation with Shift modifier for faster movement
+- Visual feedback through opacity and shadows
+
+### Notes:
+- Drag and drop fully functional within canvas
+- Blocks can be moved, resized, and deleted
+- Keyboard accessibility implemented
+- Ready for text block editing implementation
+
+### Commit: `feat: implement drag-and-drop for canvas blocks`
+
+---

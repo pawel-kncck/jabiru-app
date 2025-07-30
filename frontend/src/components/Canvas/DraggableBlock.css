@@ -1,0 +1,146 @@
+.draggable-block {
+  position: absolute;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s, border-color 0.2s;
+  user-select: none;
+  outline: none;
+}
+
+.draggable-block:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.draggable-block.selected {
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.2);
+}
+
+.draggable-block.selected:focus {
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.4);
+}
+
+.draggable-block.dragging {
+  opacity: 0.8;
+  z-index: 1000;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.block-content {
+  padding: 16px;
+  height: 100%;
+  overflow: hidden;
+  cursor: inherit;
+}
+
+.text-content {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.chart-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.chart-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.chart-content p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  background: #646cff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.draggable-block.selected .resize-handle {
+  opacity: 1;
+}
+
+.resize-handle.top-left,
+.resize-handle.top-right,
+.resize-handle.bottom-left,
+.resize-handle.bottom-right {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.resize-handle.top-left {
+  top: -4px;
+  left: -4px;
+  cursor: nw-resize;
+}
+
+.resize-handle.top-right {
+  top: -4px;
+  right: -4px;
+  cursor: ne-resize;
+}
+
+.resize-handle.bottom-left {
+  bottom: -4px;
+  left: -4px;
+  cursor: sw-resize;
+}
+
+.resize-handle.bottom-right {
+  bottom: -4px;
+  right: -4px;
+  cursor: se-resize;
+}
+
+.resize-handle.top,
+.resize-handle.bottom {
+  width: 30%;
+  height: 4px;
+  left: 35%;
+}
+
+.resize-handle.top {
+  top: -2px;
+  cursor: n-resize;
+}
+
+.resize-handle.bottom {
+  bottom: -2px;
+  cursor: s-resize;
+}
+
+.resize-handle.left,
+.resize-handle.right {
+  width: 4px;
+  height: 30%;
+  top: 35%;
+}
+
+.resize-handle.left {
+  left: -2px;
+  cursor: w-resize;
+}
+
+.resize-handle.right {
+  right: -2px;
+  cursor: e-resize;
+}

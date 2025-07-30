@@ -62,6 +62,30 @@ export function CanvasEditor() {
     setHasUnsavedChanges(true);
   };
 
+  const handleDeleteBlock = () => {
+    if (selectedBlockId) {
+      const newBlocks = blocks.filter(b => b.id !== selectedBlockId);
+      setBlocks(newBlocks);
+      setSelectedBlockId(null);
+      setHasUnsavedChanges(true);
+    }
+  };
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedBlockId && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          handleDeleteBlock();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedBlockId]);
+
   const handleSave = async () => {
     if (!canvasId || isSaving) return;
     
