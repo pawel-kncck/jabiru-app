@@ -30,6 +30,8 @@ export function CanvasEditor() {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (canvasId) {
@@ -45,6 +47,7 @@ export function CanvasEditor() {
       const canvasData = await canvasService.getCanvas(canvasId);
       setCanvas(canvasData);
       setBlocks(canvasData.content_json.blocks || []);
+      setLastSaved(new Date(canvasData.updated_at));
       
       // Load project data
       const projectData = await projectService.getProject(canvasData.project_id);
@@ -74,27 +77,44 @@ export function CanvasEditor() {
   // Global keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Delete block
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedBlockId && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
           e.preventDefault();
           handleDeleteBlock();
         }
       }
+      
+      // Manual save
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedBlockId]);
+  }, [selectedBlockId, handleSave]);
 
-  const handleSave = async () => {
+  const handleSave = async (isRetry = false) => {
     if (!canvasId || isSaving) return;
     
     try {
       setIsSaving(true);
+      setSaveError(null);
       await canvasService.saveCanvasContent(canvasId, blocks);
       setHasUnsavedChanges(false);
+      setLastSaved(new Date());
     } catch (err) {
       console.error('Failed to save canvas:', err);
+      setSaveError('Failed to save changes');
+      
+      // Retry once after a delay
+      if (!isRetry) {
+        setTimeout(() => {
+          handleSave(true);
+        }, 3000);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -110,6 +130,29 @@ export function CanvasEditor() {
     
     return () => clearTimeout(timer);
   }, [blocks, hasUnsavedChanges]);
+
+  // Update last saved display every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastSaved(prev => prev ? new Date(prev) : null);
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatLastSaved = (date: Date | null) => {
+    if (!date) return '';
+    
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (seconds < 5) return 'just now';
+    if (seconds < 60) return `${seconds}s ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    
+    return date.toLocaleDateString();
+  };
 
   if (loading) {
     return <div className="canvas-editor-loading">Loading canvas...</div>;
@@ -135,8 +178,8 @@ export function CanvasEditor() {
             ← Back to {project.name}
           </button>
           <h1>{canvas.name}</h1>
-          <span className={`save-indicator ${isSaving ? 'saving' : hasUnsavedChanges ? 'unsaved' : 'saved'}`}>
-            {isSaving ? 'Saving...' : hasUnsavedChanges ? 'Unsaved changes' : 'All changes saved'}
+          <span className={`save-indicator ${saveError ? 'error' : isSaving ? 'saving' : hasUnsavedChanges ? 'unsaved' : 'saved'}`}>
+            {saveError ? saveError : isSaving ? 'Saving...' : hasUnsavedChanges ? 'Unsaved changes' : `All changes saved ${formatLastSaved(lastSaved)}`}
           </span>
         </div>
         <div className="canvas-header-right">

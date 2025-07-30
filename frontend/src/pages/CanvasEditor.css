@@ -72,6 +72,11 @@
   background-color: #ffebee;
 }
 
+.save-indicator.error {
+  color: #d32f2f;
+  background-color: #ffcdd2;
+}
+
 .save-button {
   background-color: #646cff;
   color: white;

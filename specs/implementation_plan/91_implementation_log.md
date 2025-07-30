@@ -1189,3 +1189,61 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: add editable text block with markdown support`
 
 ---
+
+## Step 24: Canvas State Persistence
+**Date & Time:** 2025-07-30 15:00:42 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Enhanced auto-save functionality in CanvasEditor:
+   - Already had 2-second debounced auto-save from Step 21
+   - Added save error handling and display
+   - Added retry logic on save failure (one retry after 3 seconds)
+   - Added last saved timestamp tracking
+2. Improved save status indicators:
+   - Show "Saving..." during save operation
+   - Show "All changes saved X ago" with dynamic time
+   - Show error message on save failure
+   - Added error state styling (red background)
+3. Added last saved time formatting:
+   - "just now" for < 5 seconds
+   - "Xs ago" for < 1 minute
+   - "Xm ago" for < 1 hour
+   - "Xh ago" for < 1 day
+   - Full date for older saves
+4. Added keyboard shortcut:
+   - Ctrl/Cmd + S for manual save
+   - Prevents default browser save dialog
+5. Added periodic timestamp refresh:
+   - Updates display every 30 seconds
+   - Keeps "X ago" display current
+6. Created comprehensive tests:
+   - Auto-save behavior tests
+   - Error handling tests
+   - Retry logic tests
+   - Keyboard shortcut tests
+
+### Technical Details:
+- Canvas state already serialized in content_json field
+- SaveCanvasContent API already implemented in Step 20
+- useEffect with debouncing for auto-save
+- Error boundaries for save failures
+- Optimistic UI updates
+
+### Decisions Made:
+- 2-second debounce for auto-save (already implemented)
+- Single retry on failure to handle transient errors
+- Dynamic time display for better UX
+- Manual save option for user control
+- Error messages visible but not intrusive
+
+### Notes:
+- Canvas state persistence fully functional
+- Seamless auto-save experience
+- Good error recovery and user feedback
+- Ready for AI service integration
+
+### Commit: `feat: enhance canvas persistence with error handling and timestamps`
+
+---
