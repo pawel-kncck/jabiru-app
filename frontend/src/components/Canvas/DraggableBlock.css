@@ -29,21 +29,9 @@
 }
 
 .block-content {
-  padding: 16px;
   height: 100%;
   overflow: hidden;
   cursor: inherit;
-}
-
-.text-content {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
 }
 
 .chart-content {
@@ -53,6 +41,7 @@
   justify-content: center;
   height: 100%;
   text-align: center;
+  padding: 16px;
 }
 
 .chart-icon {

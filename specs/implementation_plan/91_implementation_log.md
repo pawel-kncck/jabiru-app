@@ -1127,3 +1127,65 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: implement drag-and-drop for canvas blocks`
 
 ---
+
+## Step 23: Text Block Implementation
+**Date & Time:** 2025-07-30 14:52:18 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created TextBlock component (`frontend/src/components/Blocks/TextBlock.tsx`):
+   - Double-click to enter edit mode
+   - Inline text editing with textarea
+   - Auto-height adjustment for content
+   - Escape key to cancel editing
+   - Tab key support for indentation
+   - Basic markdown formatting support
+2. Added TextBlock styles (`frontend/src/components/Blocks/TextBlock.css`):
+   - Edit/display mode styling
+   - Placeholder text for empty blocks
+   - Formatted content display
+   - Custom scrollbar styling
+   - Selected state indicator
+3. Implemented markdown-like formatting:
+   - Headers (# ## ###)
+   - Bold text (**text**)
+   - Italic text (*text*)
+   - Proper typography and spacing
+4. Integrated TextBlock into DraggableBlock:
+   - Replaced static text display with TextBlock component
+   - Content update handling
+   - Selection state pass-through
+5. Updated block content handling:
+   - Save on blur (focus loss)
+   - Cancel on Escape key
+   - Real-time content updates
+6. Created comprehensive tests:
+   - Edit mode activation tests
+   - Content saving tests
+   - Markdown formatting tests
+   - Keyboard interaction tests
+
+### Technical Details:
+- useState for edit mode management
+- useRef for DOM element access
+- useEffect for focus management
+- Dynamic textarea height calculation
+- HTML sanitization for formatted display
+
+### Decisions Made:
+- Double-click for edit mode (standard UX pattern)
+- Basic markdown subset for simplicity
+- Auto-save on blur for seamless experience
+- Escape key for cancel (standard pattern)
+- Tab support for text indentation
+
+### Notes:
+- Text blocks now fully editable
+- Markdown formatting provides rich text without complexity
+- Smooth editing experience with proper focus management
+- Ready for canvas state persistence
+
+### Commit: `feat: add editable text block with markdown support`
+
+---

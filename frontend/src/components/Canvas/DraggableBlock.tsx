@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { Block } from '../../pages/CanvasEditor';
+import { TextBlock } from '../Blocks/TextBlock';
 import './DraggableBlock.css';
 
 interface DraggableBlockProps {
@@ -160,9 +161,16 @@ export function DraggableBlock({
     >
       <div className="block-content">
         {block.type === 'text' ? (
-          <div className="text-content">
-            {block.content.text || 'Empty text block'}
-          </div>
+          <TextBlock 
+            content={block.content.text || ''}
+            onContentChange={(newContent) => {
+              onBlockUpdate({
+                ...block,
+                content: { ...block.content, text: newContent }
+              });
+            }}
+            isSelected={isSelected}
+          />
         ) : (
           <div className="chart-content">
             <span className="chart-icon">📊</span>
