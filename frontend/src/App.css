@@ -99,3 +99,19 @@ form button:disabled {
   border-radius: 4px;
   margin-bottom: 1rem;
 }
+
+input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.checkbox-group label {
+  margin-bottom: 0;
+}

@@ -1,20 +1,115 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { authService } from '../services/auth';
+import { getErrorMessage } from '../services/api';
+
+// Validation schema
+const schema = yup.object({
+  username: yup.string().required('Username is required'),
+  password: yup.string().required('Password is required'),
+  rememberMe: yup.boolean(),
+});
+
+type FormData = yup.InferType<typeof schema>;
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Get redirect path from location state
+  const from = location.state?.from?.pathname || '/';
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      rememberMe: false,
+    },
+  });
+
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await authService.login({
+        username: data.username,
+        password: data.password,
+      });
+
+      // Store token
+      authService.setToken(response.access_token);
+
+      // If remember me is checked, store in localStorage instead of sessionStorage
+      if (data.rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+      }
+
+      // Redirect to the page they tried to access or home
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div>
       <h2>Login</h2>
-      <form>
+      {error && <div className="error-alert">{error}</div>}
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label htmlFor="username">Username</label>
-          <input type="text" id="username" name="username" />
+          <input
+            type="text"
+            id="username"
+            {...register('username')}
+            disabled={isLoading}
+            autoComplete="username"
+          />
+          {errors.username && (
+            <span className="error-message">{errors.username.message}</span>
+          )}
         </div>
+
         <div>
           <label htmlFor="password">Password</label>
-          <input type="password" id="password" name="password" />
+          <input
+            type="password"
+            id="password"
+            {...register('password')}
+            disabled={isLoading}
+            autoComplete="current-password"
+          />
+          {errors.password && (
+            <span className="error-message">{errors.password.message}</span>
+          )}
         </div>
-        <button type="submit">Login</button>
+
+        <div className="checkbox-group">
+          <input
+            type="checkbox"
+            id="rememberMe"
+            {...register('rememberMe')}
+            disabled={isLoading}
+          />
+          <label htmlFor="rememberMe">
+            Remember Me
+          </label>
+        </div>
+
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
       <p>
         Don't have an account? <Link to="/register">Register here</Link>
