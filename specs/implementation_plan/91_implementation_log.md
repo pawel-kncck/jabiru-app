@@ -790,3 +790,72 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: add file upload infrastructure with local storage`
 
 ---
+
+## Step 18: CSV File Upload UI
+**Date & Time:** 2025-07-30 13:48:34 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created FileUpload component (`frontend/src/components/FileUpload.tsx`):
+   - Drag-and-drop support with visual feedback
+   - Click to browse functionality
+   - File type validation (CSV only by default)
+   - File size validation (10MB default limit)
+   - Upload progress indicator
+   - Error handling and display
+2. Added FileUpload styling (`frontend/src/components/FileUpload.css`):
+   - Responsive dropzone design
+   - Hover and drag states
+   - Progress bar animation
+   - Error message styling
+3. Created files service (`frontend/src/services/files.ts`):
+   - File upload with progress tracking
+   - List project files
+   - Delete file functionality
+   - Utility functions (formatFileSize, getFileExtension)
+4. Created ProjectDetail page (`frontend/src/pages/ProjectDetail.tsx`):
+   - Display project information
+   - File upload section
+   - List of uploaded files with metadata
+   - File deletion with confirmation
+   - Back navigation to projects list
+5. Updated routing:
+   - Added ProjectDetail route with project ID parameter
+   - Protected route with authentication
+6. Enhanced Projects page:
+   - View button already navigates to project detail
+   - Maintained consistent UI patterns
+7. Added comprehensive CSS styling:
+   - Project detail layout
+   - File list display
+   - Action buttons (secondary, danger)
+   - Responsive design
+8. Created comprehensive tests:
+   - FileUpload component tests (drag-drop, validation, errors)
+   - Files service tests with mocked API calls
+   - Test coverage for all functionality
+
+### Technical Details:
+- Used native HTML5 drag-and-drop API
+- FormData for multipart file uploads
+- Real-time upload progress tracking
+- Axios interceptors for authentication
+- Responsive grid layout for file display
+
+### Decisions Made:
+- Component-based file upload for reusability
+- Service layer for API abstraction
+- Comprehensive validation on frontend
+- Visual feedback for all user actions
+- Consistent error handling patterns
+
+### Notes:
+- File upload UI fully functional
+- Drag-and-drop working smoothly
+- All tests passing
+- Ready for CSV parsing implementation
+
+### Commit: `feat: add CSV file upload UI with drag-and-drop`
+
+---
