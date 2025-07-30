@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 import './App.css';
 
 function Navigation() {
@@ -25,6 +27,9 @@ function Navigation() {
           </>
         ) : (
           <>
+            <li>
+              <Link to="/dashboard">Dashboard</Link>
+            </li>
             <li>
               <span>Welcome, {user?.username}!</span>
             </li>
@@ -54,6 +59,14 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );
