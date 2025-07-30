@@ -1247,3 +1247,64 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: enhance canvas persistence with error handling and timestamps`
 
 ---
+
+## Step 25: Basic AI Service Integration
+**Date & Time:** 2025-07-30 15:12:36 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Added AI dependencies to requirements.txt:
+   - openai==1.3.5 for OpenAI API integration
+   - tiktoken==0.5.2 for token counting
+2. Created AI service directory structure:
+   - `backend/src/services/ai/` directory
+   - `__init__.py` for module exports
+3. Created OpenAIClient (`backend/src/services/ai/openai_client.py`):
+   - Async OpenAI API client with caching
+   - Token counting functionality
+   - Cost estimation based on model pricing
+   - Request caching with 24-hour expiry
+   - Health check functionality
+   - Cache statistics and management
+4. Added AI configuration:
+   - OPENAI_API_KEY already in config.py
+   - Environment variable support
+5. Created AI API endpoints (`backend/src/api/v1/endpoints/ai.py`):
+   - GET /ai/health - Check AI service status
+   - GET /ai/usage - Get usage statistics and cache info
+   - Authentication required for all endpoints
+6. Added chart generation prompt templates:
+   - analyze_request - For parsing natural language chart requests
+   - generate_insights - For creating data insights
+7. Created comprehensive tests:
+   - Client initialization tests
+   - Token counting tests
+   - Cost estimation tests
+   - Caching behavior tests
+   - Health check tests
+   - API error handling tests
+
+### Technical Details:
+- Async/await pattern for API calls
+- LRU cache for token counting optimization
+- MD5 hashing for cache key generation
+- Configurable cache duration
+- Model-specific pricing calculations
+
+### Decisions Made:
+- Default to gpt-3.5-turbo for cost efficiency
+- 24-hour cache duration for responses
+- Request caching enabled by default
+- Token-based cost tracking
+- Health check with minimal token usage
+
+### Notes:
+- AI service ready for chart generation features
+- Caching reduces API costs and latency
+- Flexible prompt template system
+- Ready for natural language features
+
+### Commit: `feat: integrate OpenAI API for AI-powered features`
+
+---
