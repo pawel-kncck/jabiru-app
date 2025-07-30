@@ -24,6 +24,7 @@ class User(Base):
     # Relationships
     projects = relationship("Project", back_populates="owner", cascade="all, delete-orphan")
     uploaded_files = relationship("File", back_populates="uploader")
+    created_canvases = relationship("Canvas", back_populates="creator")
     
     def __repr__(self):
         return f"<User(username='{self.username}', email='{self.email}')>"

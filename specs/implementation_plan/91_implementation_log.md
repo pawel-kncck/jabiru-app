@@ -922,3 +922,76 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: implement CSV parsing with data preview`
 
 ---
+
+## Step 20: Canvas Model and Basic Structure
+**Date & Time:** 2025-07-30 14:13:42 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Created Canvas model (`backend/src/models/canvas.py`):
+   - UUID primary key
+   - Name field for canvas identification
+   - Project relationship (many-to-one)
+   - JSON content storage for flexible block structure
+   - Creator relationship to User
+   - Timestamp tracking (created_at, updated_at)
+2. Updated relationships in existing models:
+   - Added `canvases` relationship to Project model
+   - Added `created_canvases` relationship to User model
+3. Created canvas schemas (`backend/src/schemas/canvas.py`):
+   - CanvasCreate for new canvas creation
+   - CanvasUpdate for partial updates
+   - Canvas response schema
+   - CanvasList for paginated results
+4. Implemented canvas endpoints (`backend/src/api/v1/endpoints/canvases.py`):
+   - POST /projects/{project_id}/canvases - Create canvas
+   - GET /projects/{project_id}/canvases - List project canvases
+   - GET /canvases/{canvas_id} - Get specific canvas
+   - PUT /canvases/{canvas_id} - Update canvas
+   - DELETE /canvases/{canvas_id} - Delete canvas
+5. Generated and applied database migration:
+   - Created canvases table with proper relationships
+   - Fixed GUID type imports in migration
+6. Created comprehensive tests (`backend/tests/test_canvas_endpoints.py`):
+   - Canvas CRUD operations
+   - Authorization checks
+   - Project isolation
+7. Created canvas service (`frontend/src/services/canvas.ts`):
+   - Full CRUD operations
+   - Helper for auto-saving canvas content
+   - Type-safe interfaces
+8. Enhanced ProjectDetail page:
+   - Canvas listing section
+   - Create new canvas form
+   - Canvas cards with metadata
+   - Delete functionality
+   - Navigation to canvas editor
+9. Added comprehensive CSS styling:
+   - Canvas grid layout
+   - Canvas cards
+   - Form styling
+   - Button variants
+
+### Technical Details:
+- JSON field for flexible content storage
+- Default content structure with blocks array and version
+- Cascade delete with projects
+- Owner-based access control
+- RESTful API design
+
+### Decisions Made:
+- JSON storage for maximum flexibility
+- Version field in content for future migrations
+- Canvas tied to projects for organization
+- Simple name-based identification
+
+### Notes:
+- Canvas infrastructure fully functional
+- Ready for canvas editor implementation
+- All tests passing
+- Foundation for visual analytics workspace
+
+### Commit: `feat: add Canvas model with basic CRUD operations`
+
+---

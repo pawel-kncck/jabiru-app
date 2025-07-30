@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { projectService } from '../services/projects';
 import { filesService, FileInfo } from '../services/files';
+import { canvasService, Canvas } from '../services/canvas';
 import { FileUpload } from '../components/FileUpload';
 import { DataPreview } from '../components/DataPreview';
 import type { Project } from '../services/projects';
@@ -14,10 +15,14 @@ export function ProjectDetail() {
   
   const [project, setProject] = useState<Project | null>(null);
   const [files, setFiles] = useState<FileInfo[]>([]);
+  const [canvases, setCanvases] = useState<Canvas[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const [previewFileId, setPreviewFileId] = useState<string | null>(null);
+  const [showCreateCanvas, setShowCreateCanvas] = useState(false);
+  const [canvasName, setCanvasName] = useState('');
+  const [creatingCanvas, setCreatingCanvas] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -30,13 +35,15 @@ export function ProjectDetail() {
     
     try {
       setLoading(true);
-      const [projectData, filesData] = await Promise.all([
+      const [projectData, filesData, canvasesData] = await Promise.all([
         projectService.getProject(projectId),
-        filesService.listProjectFiles(projectId)
+        filesService.listProjectFiles(projectId),
+        canvasService.listCanvases(projectId)
       ]);
       
       setProject(projectData);
       setFiles(filesData.files);
+      setCanvases(canvasesData.canvases);
     } catch (err) {
       setError('Failed to load project data');
       console.error(err);
@@ -63,6 +70,40 @@ export function ProjectDetail() {
       console.error(err);
     } finally {
       setDeletingFileId(null);
+    }
+  };
+
+  const handleCreateCanvas = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canvasName.trim() || !projectId) return;
+    
+    try {
+      setCreatingCanvas(true);
+      const newCanvas = await canvasService.createCanvas(projectId, {
+        name: canvasName.trim()
+      });
+      setCanvases([...canvases, newCanvas]);
+      setCanvasName('');
+      setShowCreateCanvas(false);
+    } catch (err) {
+      alert('Failed to create canvas');
+      console.error(err);
+    } finally {
+      setCreatingCanvas(false);
+    }
+  };
+
+  const handleDeleteCanvas = async (canvasId: string) => {
+    if (!window.confirm('Are you sure you want to delete this canvas?')) {
+      return;
+    }
+    
+    try {
+      await canvasService.deleteCanvas(canvasId);
+      setCanvases(canvases.filter(c => c.id !== canvasId));
+    } catch (err) {
+      alert('Failed to delete canvas');
+      console.error(err);
     }
   };
 
@@ -134,6 +175,66 @@ export function ProjectDetail() {
                       disabled={deletingFileId === file.id}
                     >
                       {deletingFileId === file.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="canvases-section">
+          <div className="section-header">
+            <h2>Canvases ({canvases.length})</h2>
+            <button 
+              className="button-primary"
+              onClick={() => setShowCreateCanvas(!showCreateCanvas)}
+            >
+              {showCreateCanvas ? 'Cancel' : 'New Canvas'}
+            </button>
+          </div>
+          
+          {showCreateCanvas && (
+            <form className="create-canvas-form" onSubmit={handleCreateCanvas}>
+              <input
+                type="text"
+                placeholder="Canvas name"
+                value={canvasName}
+                onChange={(e) => setCanvasName(e.target.value)}
+                required
+              />
+              <button 
+                type="submit" 
+                disabled={creatingCanvas}
+                className="button-primary"
+              >
+                {creatingCanvas ? 'Creating...' : 'Create Canvas'}
+              </button>
+            </form>
+          )}
+          
+          {canvases.length === 0 ? (
+            <p className="no-canvases">No canvases yet. Create a canvas to start analyzing your data!</p>
+          ) : (
+            <div className="canvases-grid">
+              {canvases.map(canvas => (
+                <div key={canvas.id} className="canvas-card">
+                  <h3>{canvas.name}</h3>
+                  <p className="canvas-meta">
+                    Created {new Date(canvas.created_at).toLocaleDateString()}
+                  </p>
+                  <div className="canvas-actions">
+                    <button 
+                      className="button-primary"
+                      onClick={() => navigate(`/canvas/${canvas.id}`)}
+                    >
+                      Open
+                    </button>
+                    <button 
+                      className="button-danger"
+                      onClick={() => handleDeleteCanvas(canvas.id)}
+                    >
+                      Delete
                     </button>
                   </div>
                 </div>

@@ -402,3 +402,89 @@ input[type="checkbox"] {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Canvas Section Styles */
+.canvases-section {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.create-canvas-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.create-canvas-form input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.no-canvases {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.canvases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.canvas-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.canvas-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+}
+
+.canvas-meta {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.canvas-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.button-primary {
+  background-color: #646cff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.button-primary:hover {
+  background-color: #535bf2;
+}
+
+.button-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
