@@ -21,6 +21,7 @@ class Project(Base):
     
     # Relationships
     owner = relationship("User", back_populates="projects")
+    files = relationship("File", back_populates="project", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Project(name='{self.name}', owner_id='{self.owner_id}')>"

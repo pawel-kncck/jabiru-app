@@ -33,6 +33,9 @@ class Settings:
     # API Keys (for future use)
     OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
     
+    # File Upload
+    UPLOAD_DIRECTORY: str = os.getenv("UPLOAD_DIRECTORY", "uploads")
+    
     # CORS
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
@@ -52,3 +55,7 @@ class Settings:
 
 # Create settings instance
 settings = Settings()
+
+def get_settings() -> Settings:
+    """Get application settings"""
+    return settings

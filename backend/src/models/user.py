@@ -23,6 +23,7 @@ class User(Base):
     
     # Relationships
     projects = relationship("Project", back_populates="owner", cascade="all, delete-orphan")
+    uploaded_files = relationship("File", back_populates="uploader")
     
     def __repr__(self):
         return f"<User(username='{self.username}', email='{self.email}')>"
