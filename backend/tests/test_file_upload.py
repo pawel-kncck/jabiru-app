@@ -1,5 +1,8 @@
 import io
 import pytest
+import tempfile
+import os
+from pathlib import Path
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -240,6 +243,115 @@ class TestFileUpload:
             
             assert delete_response.status_code == 404
             assert "File not found" in delete_response.json()["detail"]
+            
+        finally:
+            db.query(File).delete()
+            db.query(Project).delete()
+            db.query(User).delete()
+            db.commit()
+            db.close()
+    
+    def test_preview_csv_file(self):
+        db = TestingSessionLocal()
+        try:
+            user = create_test_user(db)
+            project = create_test_project(db, user)
+            headers = get_auth_headers()
+            
+            # Create a test CSV file
+            csv_content = "name,age,email\nJohn,30,john@example.com\nJane,25,jane@example.com"
+            
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+                f.write(csv_content)
+                temp_path = f.name
+            
+            # Create file record in database
+            file_record = File(
+                filename="test.csv",
+                path=temp_path,
+                size=len(csv_content),
+                mime_type="text/csv",
+                project_id=project.id,
+                uploaded_by=user.id
+            )
+            db.add(file_record)
+            db.commit()
+            db.refresh(file_record)
+            
+            # Test preview endpoint
+            response = client.get(
+                f"/api/v1/files/{file_record.id}/preview",
+                headers=headers
+            )
+            
+            assert response.status_code == 200
+            data = response.json()
+            assert "preview" in data
+            assert "metadata" in data
+            
+            preview = data["preview"]
+            assert len(preview["data"]) == 2
+            assert preview["columns"] == ["name", "age", "email"]
+            assert preview["total_rows"] == 2
+            
+            metadata = data["metadata"]
+            assert metadata["total_rows"] == 2
+            assert metadata["total_columns"] == 3
+            assert metadata["delimiter"] == ","
+            
+            os.unlink(temp_path)
+            
+        finally:
+            db.query(File).delete()
+            db.query(Project).delete()
+            db.query(User).delete()
+            db.commit()
+            db.close()
+    
+    def test_column_statistics(self):
+        db = TestingSessionLocal()
+        try:
+            user = create_test_user(db)
+            project = create_test_project(db, user)
+            headers = get_auth_headers()
+            
+            # Create a test CSV file with numeric data
+            csv_content = "name,age,salary\nJohn,30,50000\nJane,25,45000\nBob,35,60000"
+            
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+                f.write(csv_content)
+                temp_path = f.name
+            
+            # Create file record in database
+            file_record = File(
+                filename="test_stats.csv",
+                path=temp_path,
+                size=len(csv_content),
+                mime_type="text/csv",
+                project_id=project.id,
+                uploaded_by=user.id
+            )
+            db.add(file_record)
+            db.commit()
+            db.refresh(file_record)
+            
+            # Test column statistics endpoint
+            response = client.get(
+                f"/api/v1/files/{file_record.id}/column-stats/age",
+                headers=headers
+            )
+            
+            assert response.status_code == 200
+            stats = response.json()
+            assert stats["column"] == "age"
+            assert stats["total_values"] == 3
+            assert stats["missing_values"] == 0
+            assert "mean" in stats
+            assert stats["mean"] == 30.0
+            assert stats["min"] == 25.0
+            assert stats["max"] == 35.0
+            
+            os.unlink(temp_path)
             
         finally:
             db.query(File).delete()

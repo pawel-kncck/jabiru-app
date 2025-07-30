@@ -859,3 +859,66 @@ This document tracks the implementation progress of the Jabiru MVP, recording ea
 ### Commit: `feat: add CSV file upload UI with drag-and-drop`
 
 ---
+
+## Step 19: CSV Parsing and Data Preview
+**Date & Time:** 2025-07-30 14:05:17 (CEST)
+**Status:** ✅ Completed
+**Executor:** Agent
+
+### Actions Taken:
+1. Added data processing dependencies:
+   - pandas==2.1.3 for CSV parsing and data manipulation
+   - chardet==5.2.0 for encoding detection
+2. Created DataProcessingService (`backend/src/services/data_processing.py`):
+   - Automatic encoding detection for CSV files
+   - Delimiter detection (comma, semicolon, tab, pipe)
+   - Column type detection (integer, float, string, datetime, boolean)
+   - CSV parsing with error handling
+   - Data preview generation (first 100 rows by default)
+   - Column statistics calculation (mean, median, min, max, etc.)
+   - Missing value detection and reporting
+3. Added preview endpoints to files API:
+   - GET /files/{file_id}/preview - Get CSV preview and metadata
+   - GET /files/{file_id}/column-stats/{column_name} - Get column statistics
+4. Created DataPreview component (`frontend/src/components/DataPreview.tsx`):
+   - Modal interface for data preview
+   - Displays file metadata (rows, columns, encoding, delimiter)
+   - Data table with column type indicators
+   - Click column headers for statistics
+   - Visual indicators for missing values
+   - Responsive design with scrollable table
+5. Updated files service with preview methods:
+   - getFilePreview() for retrieving preview data
+   - getColumnStatistics() for column analysis
+6. Enhanced ProjectDetail page:
+   - Preview button for CSV files only
+   - Modal display of data preview
+7. Created comprehensive tests:
+   - Data processing service tests with various CSV formats
+   - File preview endpoint tests
+   - Column statistics tests
+   - Edge case handling (missing values, special characters)
+
+### Technical Details:
+- Pandas for efficient CSV processing
+- Automatic delimiter and encoding detection
+- Type inference for all columns
+- Memory-efficient preview generation
+- Real-time column statistics calculation
+
+### Decisions Made:
+- Limited preview to 100 rows for performance
+- Supported multiple delimiters (comma, semicolon, tab, pipe)
+- Comprehensive type detection including datetime and boolean
+- Modal interface for better UX
+- Column-clickable statistics for data exploration
+
+### Notes:
+- CSV parsing fully functional with various formats
+- Preview provides immediate data insights
+- Column statistics help understand data distribution
+- Ready for canvas implementation
+
+### Commit: `feat: implement CSV parsing with data preview`
+
+---

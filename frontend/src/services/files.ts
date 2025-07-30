@@ -78,4 +78,18 @@ export const filesService = {
   isCSVFile(filename: string): boolean {
     return this.getFileExtension(filename) === 'csv';
   },
+
+  async getFilePreview(fileId: string, rows = 100): Promise<any> {
+    const response = await api.get(`/files/${fileId}/preview`, {
+      params: { rows },
+    });
+    return response.data;
+  },
+
+  async getColumnStatistics(fileId: string, columnName: string): Promise<any> {
+    const response = await api.get(
+      `/files/${fileId}/column-stats/${columnName}`
+    );
+    return response.data;
+  },
 };

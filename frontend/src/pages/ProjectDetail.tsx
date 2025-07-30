@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { projectService } from '../services/projects';
 import { filesService, FileInfo } from '../services/files';
 import { FileUpload } from '../components/FileUpload';
+import { DataPreview } from '../components/DataPreview';
 import type { Project } from '../services/projects';
 
 export function ProjectDetail() {
@@ -16,6 +17,7 @@ export function ProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
+  const [previewFileId, setPreviewFileId] = useState<string | null>(null);
 
   useEffect(() => {
     if (projectId) {
@@ -118,12 +120,14 @@ export function ProjectDetail() {
                     </div>
                   </div>
                   <div className="file-actions">
-                    <button 
-                      className="button-secondary"
-                      onClick={() => console.log('Preview:', file.id)}
-                    >
-                      Preview
-                    </button>
+                    {filesService.isCSVFile(file.filename) && (
+                      <button 
+                        className="button-secondary"
+                        onClick={() => setPreviewFileId(file.id)}
+                      >
+                        Preview
+                      </button>
+                    )}
                     <button 
                       className="button-danger"
                       onClick={() => handleDeleteFile(file.id)}
@@ -138,6 +142,13 @@ export function ProjectDetail() {
           )}
         </section>
       </div>
+      
+      {previewFileId && (
+        <DataPreview 
+          fileId={previewFileId} 
+          onClose={() => setPreviewFileId(null)} 
+        />
+      )}
     </div>
   );
 }
