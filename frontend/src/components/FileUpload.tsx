@@ -1,4 +1,5 @@
 import React, { useState, useRef, DragEvent } from 'react';
+import { filesService } from '../services/files';
 import './FileUpload.css';
 
 interface FileUploadProps {
@@ -8,11 +9,11 @@ interface FileUploadProps {
   maxSize?: number;
 }
 
-export function FileUpload({ 
-  projectId, 
-  onUploadSuccess, 
+export function FileUpload({
+  projectId,
+  onUploadSuccess,
   accept = '.csv',
-  maxSize = 10 * 1024 * 1024 // 10MB
+  maxSize = 10 * 1024 * 1024, // 10MB
 }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -21,18 +22,52 @@ export function FileUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
-    const allowedExtensions = accept.split(',').map(ext => ext.trim());
+    const allowedExtensions = accept.split(',').map((ext) => ext.trim());
     const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
-    
+
     if (!allowedExtensions.includes(fileExtension)) {
-      return `File type not allowed. Please upload ${allowedExtensions.join(', ')} files only.`;
+      return `File type not allowed. Please upload ${allowedExtensions.join(
+        ', '
+      )} files only.`;
     }
-    
+
     if (file.size > maxSize) {
-      return `File too large. Maximum size is ${(maxSize / 1024 / 1024).toFixed(0)}MB.`;
+      return `File too large. Maximum size is ${(maxSize / 1024 / 1024).toFixed(
+        0
+      )}MB.`;
     }
-    
+
     return null;
+  };
+
+  const handleFileUpload = async (file: File) => {
+    setError(null);
+
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Use the filesService to upload the file
+      await filesService.uploadFile(projectId, file);
+
+      setTimeout(() => {
+        setIsUploading(false);
+        onUploadSuccess();
+      }, 500);
+    } catch (err) {
+      // getErrorMessage is not exported from api.ts, so we'll handle it simply
+      const errorMessage =
+        (err as any)?.response?.data?.detail ||
+        (err as Error).message ||
+        'Upload failed';
+      setError(errorMessage);
+      setIsUploading(false);
+    }
   };
 
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
@@ -56,7 +91,7 @@ export function FileUpload({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileUpload(files[0]);
@@ -70,49 +105,6 @@ export function FileUpload({
     }
   };
 
-  const handleFileUpload = async (file: File) => {
-    setError(null);
-    
-    const validationError = validateFile(file);
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-    
-    setIsUploading(true);
-    setUploadProgress(0);
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/projects/${projectId}/files`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-      
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Upload failed');
-      }
-      
-      setUploadProgress(100);
-      setTimeout(() => {
-        setIsUploading(false);
-        setUploadProgress(0);
-        onUploadSuccess();
-      }, 500);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
-      setIsUploading(false);
-      setUploadProgress(0);
-    }
-  };
-
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -120,7 +112,9 @@ export function FileUpload({
   return (
     <div className="file-upload-container">
       <div
-        className={`file-upload-dropzone ${isDragging ? 'dragging' : ''} ${isUploading ? 'uploading' : ''}`}
+        className={`file-upload-dropzone ${isDragging ? 'dragging' : ''} ${
+          isUploading ? 'uploading' : ''
+        }`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
@@ -134,12 +128,12 @@ export function FileUpload({
           onChange={handleFileSelect}
           style={{ display: 'none' }}
         />
-        
+
         {isUploading ? (
           <div className="upload-progress">
             <div className="progress-bar">
-              <div 
-                className="progress-fill" 
+              <div
+                className="progress-fill"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
@@ -157,12 +151,8 @@ export function FileUpload({
           </>
         )}
       </div>
-      
-      {error && (
-        <div className="upload-error">
-          ⚠️ {error}
-        </div>
-      )}
+
+      {error && <div className="upload-error">⚠️ {error}</div>}
     </div>
   );
 }
