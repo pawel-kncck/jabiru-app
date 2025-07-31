@@ -24,9 +24,10 @@ import {
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { filesService } from '../../services/files';
-import { FileMetadata } from '../../types/file';
+import type { FileMetadata } from '../../types/file';
 import { FileUpload } from '../FileUpload';
 import { DataPreview } from '../DataPreview';
+import type { Project } from '../../types/project';
 
 interface DataStudioTabProps {
   projectId: number;
@@ -61,7 +62,7 @@ export const DataStudioTab: React.FC<DataStudioTabProps> = ({ projectId }) => {
     try {
       await filesService.uploadFile(file, projectId);
       await loadFiles();
-      setUploadKey(prev => prev + 1);
+      setUploadKey((prev) => prev + 1);
     } catch (error) {
       console.error('File upload failed:', error);
       throw error;
@@ -95,7 +96,9 @@ export const DataStudioTab: React.FC<DataStudioTabProps> = ({ projectId }) => {
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
+    <Box
+      sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}
+    >
       {/* Upload Section */}
       <Paper
         sx={{
@@ -159,7 +162,9 @@ export const DataStudioTab: React.FC<DataStudioTabProps> = ({ projectId }) => {
               p: 3,
             }}
           >
-            <CloudUploadIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+            <CloudUploadIcon
+              sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }}
+            />
             <Typography variant="body1" color="text.secondary" align="center">
               No files uploaded yet. Upload your first data file to get started.
             </Typography>
@@ -180,7 +185,9 @@ export const DataStudioTab: React.FC<DataStudioTabProps> = ({ projectId }) => {
                 {files.map((file) => (
                   <TableRow key={file.id} hover>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
                         <FileIcon fontSize="small" color="action" />
                         <Typography variant="body2">{file.filename}</Typography>
                       </Box>
@@ -199,7 +206,10 @@ export const DataStudioTab: React.FC<DataStudioTabProps> = ({ projectId }) => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="text.secondary">
-                        {format(new Date(file.uploaded_at), 'MMM dd, yyyy HH:mm')}
+                        {format(
+                          new Date(file.uploaded_at),
+                          'MMM dd, yyyy HH:mm'
+                        )}
                       </Typography>
                     </TableCell>
                     <TableCell align="center">

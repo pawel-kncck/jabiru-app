@@ -17,7 +17,8 @@ import {
   Person as PersonIcon,
   SmartToy as BotIcon,
 } from '@mui/icons-material';
-import { chatService, ChatMessage } from '../../services/chat';
+import { chatService } from '../../services/chat';
+import type { ChatMessage } from '../../services/chat';
 
 interface Message extends ChatMessage {
   id: string;

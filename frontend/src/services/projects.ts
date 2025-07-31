@@ -6,7 +6,7 @@ import type {
   ProjectList,
 } from '../types/project';
 
-export type { Project, ProjectCreate, ProjectUpdate, ProjectList };
+//export type { Project, ProjectCreate, ProjectUpdate, ProjectList };
 
 export const projectsService = {
   async createProject(data: ProjectCreate): Promise<Project> {

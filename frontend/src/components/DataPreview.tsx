@@ -13,7 +13,7 @@ import {
   Chip,
   CircularProgress,
   Alert,
-  Grid2 as Grid,
+  Grid,
   DialogTitle,
   DialogContent,
   Tooltip,
@@ -41,7 +41,7 @@ interface PreviewData {
   total_rows: number;
 }
 
-interface FileMetadata {
+interface FilePreviewMetadata {
   total_rows: number;
   total_columns: number;
   file_size_bytes: number;
@@ -57,7 +57,7 @@ export function DataPreview({ fileId, onClose }: DataPreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewData | null>(null);
-  const [metadata, setMetadata] = useState<FileMetadata | null>(null);
+  const [metadata, setMetadata] = useState<FilePreviewMetadata | null>(null);
   const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
   const [columnStats, setColumnStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);

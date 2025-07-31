@@ -33,7 +33,9 @@ export const chatService = {
     return response.data;
   },
 
-  async checkHealth(projectId: number): Promise<{
+  async checkHealth(
+    projectId: number
+  ): Promise<{
     status: 'healthy' | 'error';
     message: string;
   }> {

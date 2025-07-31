@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { Save as SaveIcon } from '@mui/icons-material';
 import { projectsService } from '../../services/projects';
+import type { Project } from '../../types/project';
 
 interface ContextTabProps {
   projectId: number;
@@ -79,7 +80,9 @@ export const ContextTab: React.FC<ContextTabProps> = ({ projectId }) => {
   }
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
+    <Box
+      sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}
+    >
       <Paper
         sx={{
           flex: 1,
@@ -96,8 +99,9 @@ export const ContextTab: React.FC<ContextTabProps> = ({ projectId }) => {
             Project Context
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Provide context about your project, data, and business objectives. This information
-            will help the AI understand your specific needs and provide more relevant insights.
+            Provide context about your project, data, and business objectives.
+            This information will help the AI understand your specific needs and
+            provide more relevant insights.
           </Typography>
         </Box>
 
@@ -140,7 +144,9 @@ The more context you provide, the better the AI can assist you with your analysi
           }}
         />
 
-        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+        <Box
+          sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
+        >
           <Typography variant="body2" color="text.secondary">
             {context.length} characters
           </Typography>

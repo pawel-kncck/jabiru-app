@@ -9,7 +9,7 @@ import {
   Alert,
 } from '@mui/material';
 import { projectsService } from '../../services/projects';
-import { Project } from '../../types/project';
+import type { Project } from '../../types/project';
 import { DataStudioTab } from './DataStudioTab';
 import { ContextTab } from './ContextTab';
 import { ChatTab } from './ChatTab';
@@ -113,11 +113,7 @@ export const ProjectView: React.FC = () => {
             {project.name}
           </Typography>
           {project.description && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mt: 0.5 }}
-            >
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               {project.description}
             </Typography>
           )}

@@ -13,7 +13,7 @@ import {
   Link,
   Alert,
   CircularProgress,
-  Grid2 as Grid,
+  Grid,
 } from '@mui/material';
 import { authService } from '../services/auth';
 import { getErrorMessage } from '../services/api';

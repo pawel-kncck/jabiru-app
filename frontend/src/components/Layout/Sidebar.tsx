@@ -22,7 +22,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import { projectsService } from '../../services/projects';
-import { Project } from '../../types/project';
+import type { Project } from '../../types/project';
 
 interface SidebarProps {
   onProjectCreate?: () => void;
@@ -204,12 +204,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onProjectCreate }) => {
         >
           {isCollapsed ? (
             <Tooltip title={user?.name || 'User'} placement="right">
-              <Avatar sx={{ width: 36, height: 36 }}>{getUserInitials()}</Avatar>
+              <Avatar sx={{ width: 36, height: 36 }}>
+                {getUserInitials()}
+              </Avatar>
             </Tooltip>
           ) : (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Avatar sx={{ width: 36, height: 36 }}>{getUserInitials()}</Avatar>
+                <Avatar sx={{ width: 36, height: 36 }}>
+                  {getUserInitials()}
+                </Avatar>
                 <Typography variant="body2" noWrap sx={{ maxWidth: 140 }}>
                   {user?.name || 'User'}
                 </Typography>
