@@ -45,7 +45,12 @@ const Login: React.FC = () => {
 
       // If remember me is checked, store in localStorage
       if (data.rememberMe) {
+        // Store a longer-lived indicator
         localStorage.setItem('rememberMe', 'true');
+        // You could also request a longer-lived token from the backend
+      } else {
+        // Use session storage for non-remembered sessions
+        sessionStorage.setItem('tempSession', 'true');
       }
 
       // Redirect to the page they tried to access or home
@@ -97,9 +102,7 @@ const Login: React.FC = () => {
             {...register('rememberMe')}
             disabled={isLoading}
           />
-          <label htmlFor="rememberMe">
-            Remember Me
-          </label>
+          <label htmlFor="rememberMe">Remember Me</label>
         </div>
 
         <button type="submit" disabled={isLoading}>

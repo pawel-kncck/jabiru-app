@@ -35,12 +35,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initAuth = async () => {
       const token = authService.getToken();
       if (token) {
+        // Set the token in axios defaults immediately
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
         try {
           const userData = await authService.getCurrentUser();
           setUser(userData);
         } catch (error) {
-          // Token is invalid or expired
-          authService.logout();
+          // Only clear token if we get a 401 (handled by interceptor)
+          // Don't clear on network errors or other issues
+          console.error('Failed to get user data:', error);
         }
       }
       setIsLoading(false);
@@ -50,6 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Set up axios interceptor to include token in requests
+  // frontend/src/contexts/AuthContext.tsx
   useEffect(() => {
     const requestInterceptor = api.interceptors.request.use(
       (config) => {
@@ -65,26 +70,87 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    // Set up response interceptor for 401 errors
     const responseInterceptor = api.interceptors.response.use(
       (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          // Clear user state and redirect to login
-          setUser(null);
-          authService.logout();
-          window.location.href = '/login';
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            // Try to refresh the token
+            const refreshToken = authService.getRefreshToken();
+            if (refreshToken) {
+              const response = await api.post('/users/refresh', {
+                refresh_token: refreshToken,
+              });
+
+              const { access_token } = response.data;
+              authService.setToken(access_token);
+
+              // Retry original request with new token
+              originalRequest.headers.Authorization = `Bearer ${access_token}`;
+              return api(originalRequest);
+            }
+          } catch (refreshError) {
+            // Refresh failed, logout user
+            setUser(null);
+            authService.logout();
+            window.location.href = '/login';
+            return Promise.reject(refreshError);
+          }
         }
+
         return Promise.reject(error);
       }
     );
 
-    // Clean up interceptors on unmount
     return () => {
       api.interceptors.request.eject(requestInterceptor);
       api.interceptors.response.eject(responseInterceptor);
     };
   }, []);
+
+  // frontend/src/contexts/AuthContext.tsx
+  useEffect(() => {
+    if (!user) return;
+
+    let activityTimer: NodeJS.Timeout;
+
+    const extendSession = async () => {
+      try {
+        // Call an endpoint to get a new token
+        const response = await api.post('/users/extend-session');
+        if (response.data.access_token) {
+          authService.setToken(response.data.access_token);
+        }
+      } catch (error) {
+        console.error('Failed to extend session:', error);
+      }
+    };
+
+    const resetActivityTimer = () => {
+      clearTimeout(activityTimer);
+      // Extend session after 15 minutes of activity
+      activityTimer = setTimeout(extendSession, 15 * 60 * 1000);
+    };
+
+    // Listen for user activity
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((event) => {
+      document.addEventListener(event, resetActivityTimer);
+    });
+
+    resetActivityTimer();
+
+    return () => {
+      clearTimeout(activityTimer);
+      events.forEach((event) => {
+        document.removeEventListener(event, resetActivityTimer);
+      });
+    };
+  }, [user]);
 
   const login = async (username: string, password: string) => {
     const response = await authService.login({ username, password });
