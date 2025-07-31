@@ -1,9 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import {
+  Box,
+  Typography,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  CircularProgress,
+  Alert,
+  Grid2 as Grid,
+  DialogTitle,
+  DialogContent,
+  Tooltip,
+} from '@mui/material';
+import {
+  Close as CloseIcon,
+  Numbers as NumbersIcon,
+  TextFields as TextIcon,
+  CalendarMonth as DateIcon,
+  CheckBox as BooleanIcon,
+  Help as UnknownIcon,
+  Warning as WarningIcon,
+} from '@mui/icons-material';
 import { filesService } from '../services/files';
-import './DataPreview.css';
 
 interface DataPreviewProps {
-  fileId: string;
+  fileId: number;
   onClose: () => void;
 }
 
@@ -71,185 +98,225 @@ export function DataPreview({ fileId, onClose }: DataPreviewProps) {
     switch (type) {
       case 'integer':
       case 'float':
-        return '🔢';
+        return <NumbersIcon fontSize="small" />;
       case 'string':
-        return '📝';
+        return <TextIcon fontSize="small" />;
       case 'datetime':
-        return '📅';
+        return <DateIcon fontSize="small" />;
       case 'boolean':
-        return '✓✗';
+        return <BooleanIcon fontSize="small" />;
       default:
-        return '❓';
+        return <UnknownIcon fontSize="small" />;
     }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   if (loading) {
     return (
-      <div className="data-preview-modal">
-        <div className="data-preview-content">
-          <div className="loading">Loading preview...</div>
-        </div>
-      </div>
+      <Box sx={{ p: 3, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography sx={{ mt: 2 }}>Loading preview...</Typography>
+      </Box>
     );
   }
 
   if (error || !preview || !metadata) {
     return (
-      <div className="data-preview-modal">
-        <div className="data-preview-content">
-          <div className="preview-header">
-            <h2>Data Preview</h2>
-            <button className="close-button" onClick={onClose}>✕</button>
-          </div>
-          <div className="error">{error || 'No data available'}</div>
-        </div>
-      </div>
+      <Box sx={{ p: 3 }}>
+        <DialogTitle sx={{ p: 0, pb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">Data Preview</Typography>
+          <IconButton onClick={onClose} size="small">
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <Alert severity="error">{error || 'No data available'}</Alert>
+      </Box>
     );
   }
 
   return (
-    <div className="data-preview-modal">
-      <div className="data-preview-content">
-        <div className="preview-header">
-          <h2>Data Preview</h2>
-          <button className="close-button" onClick={onClose}>✕</button>
-        </div>
+    <Box>
+      <DialogTitle sx={{ p: 3, pb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6">Data Preview</Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      
+      <DialogContent sx={{ p: 3, pt: 0 }}>
+        {/* File Information */}
+        <Paper sx={{ p: 2, mb: 3, backgroundColor: 'background.default' }}>
+          <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+            File Information
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 6, sm: 4 }}>
+              <Typography variant="body2" color="text.secondary">Total Rows</Typography>
+              <Typography variant="body1">{metadata.total_rows.toLocaleString()}</Typography>
+            </Grid>
+            <Grid size={{ xs: 6, sm: 4 }}>
+              <Typography variant="body2" color="text.secondary">Total Columns</Typography>
+              <Typography variant="body1">{metadata.total_columns}</Typography>
+            </Grid>
+            <Grid size={{ xs: 6, sm: 4 }}>
+              <Typography variant="body2" color="text.secondary">File Size</Typography>
+              <Typography variant="body1">{formatFileSize(metadata.file_size_bytes)}</Typography>
+            </Grid>
+            <Grid size={{ xs: 6, sm: 4 }}>
+              <Typography variant="body2" color="text.secondary">Encoding</Typography>
+              <Typography variant="body1">{metadata.encoding}</Typography>
+            </Grid>
+            <Grid size={{ xs: 6, sm: 4 }}>
+              <Typography variant="body2" color="text.secondary">Delimiter</Typography>
+              <Typography variant="body1">"{metadata.delimiter}"</Typography>
+            </Grid>
+            <Grid size={{ xs: 6, sm: 4 }}>
+              <Typography variant="body2" color="text.secondary">Has Missing Values</Typography>
+              <Typography variant="body1">{metadata.has_missing_values ? 'Yes' : 'No'}</Typography>
+            </Grid>
+          </Grid>
+        </Paper>
 
-        <div className="metadata-section">
-          <h3>File Information</h3>
-          <div className="metadata-grid">
-            <div className="metadata-item">
-              <span className="label">Total Rows:</span>
-              <span className="value">{metadata.total_rows.toLocaleString()}</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">Total Columns:</span>
-              <span className="value">{metadata.total_columns}</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">File Size:</span>
-              <span className="value">{filesService.formatFileSize(metadata.file_size_bytes)}</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">Encoding:</span>
-              <span className="value">{metadata.encoding}</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">Delimiter:</span>
-              <span className="value">"{metadata.delimiter}"</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">Has Missing Values:</span>
-              <span className="value">{metadata.has_missing_values ? 'Yes' : 'No'}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="preview-section">
-          <h3>Data Preview (First {preview.preview_rows} rows)</h3>
-          <div className="data-table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
+        {/* Data Preview */}
+        <Paper sx={{ mb: 3, backgroundColor: 'background.default' }}>
+          <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Data Preview (First {preview.preview_rows} rows)
+            </Typography>
+          </Box>
+          <TableContainer sx={{ maxHeight: 400 }}>
+            <Table stickyHeader size="small">
+              <TableHead>
+                <TableRow>
                   {preview.columns.map((column) => (
-                    <th 
+                    <TableCell
                       key={column}
                       onClick={() => loadColumnStats(column)}
-                      className="clickable-header"
+                      sx={{
+                        cursor: 'pointer',
+                        backgroundColor: 'background.paper',
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                        },
+                      }}
                     >
-                      <div className="column-header">
-                        <span className="column-type-icon">
-                          {getColumnTypeIcon(metadata.column_types[column])}
-                        </span>
-                        <span className="column-name">{column}</span>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        {getColumnTypeIcon(metadata.column_types[column])}
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {column}
+                        </Typography>
                         {metadata.missing_values_per_column[column] > 0 && (
-                          <span className="missing-indicator" title={`${metadata.missing_values_per_column[column]} missing values`}>
-                            ⚠️
-                          </span>
+                          <Tooltip title={`${metadata.missing_values_per_column[column]} missing values`}>
+                            <WarningIcon fontSize="small" color="warning" />
+                          </Tooltip>
                         )}
-                      </div>
-                    </th>
+                      </Box>
+                    </TableCell>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {preview.data.map((row, index) => (
-                  <tr key={index}>
+                  <TableRow key={index} hover>
                     {preview.columns.map((column) => (
-                      <td key={column} className={row[column] === null ? 'null-value' : ''}>
-                        {row[column] === null ? 'NULL' : String(row[column])}
-                      </td>
+                      <TableCell key={column}>
+                        {row[column] === null ? (
+                          <Typography variant="body2" color="text.disabled">
+                            NULL
+                          </Typography>
+                        ) : (
+                          <Typography variant="body2">{String(row[column])}</Typography>
+                        )}
+                      </TableCell>
                     ))}
-                  </tr>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
 
+        {/* Column Statistics */}
         {selectedColumn && columnStats && (
-          <div className="stats-section">
-            <h3>Column Statistics: {selectedColumn}</h3>
+          <Paper sx={{ p: 2, backgroundColor: 'background.default' }}>
+            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+              Column Statistics: {selectedColumn}
+            </Typography>
             {loadingStats ? (
-              <div className="loading">Loading statistics...</div>
+              <Box sx={{ textAlign: 'center', py: 2 }}>
+                <CircularProgress size={24} />
+              </Box>
             ) : (
-              <div className="stats-grid">
-                <div className="stat-item">
-                  <span className="label">Data Type:</span>
-                  <span className="value">{columnStats.data_type}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="label">Total Values:</span>
-                  <span className="value">{columnStats.total_values.toLocaleString()}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="label">Missing Values:</span>
-                  <span className="value">{columnStats.missing_values.toLocaleString()}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="label">Unique Values:</span>
-                  <span className="value">{columnStats.unique_values.toLocaleString()}</span>
-                </div>
+              <>
+                <Grid container spacing={2} sx={{ mb: 2 }}>
+                  <Grid size={{ xs: 6, sm: 3 }}>
+                    <Typography variant="body2" color="text.secondary">Data Type</Typography>
+                    <Typography variant="body1">{columnStats.data_type}</Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6, sm: 3 }}>
+                    <Typography variant="body2" color="text.secondary">Total Values</Typography>
+                    <Typography variant="body1">{columnStats.total_values.toLocaleString()}</Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6, sm: 3 }}>
+                    <Typography variant="body2" color="text.secondary">Missing Values</Typography>
+                    <Typography variant="body1">{columnStats.missing_values.toLocaleString()}</Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6, sm: 3 }}>
+                    <Typography variant="body2" color="text.secondary">Unique Values</Typography>
+                    <Typography variant="body1">{columnStats.unique_values.toLocaleString()}</Typography>
+                  </Grid>
+                </Grid>
 
                 {columnStats.mean !== undefined && (
-                  <>
-                    <div className="stat-item">
-                      <span className="label">Mean:</span>
-                      <span className="value">{columnStats.mean?.toFixed(2)}</span>
-                    </div>
-                    <div className="stat-item">
-                      <span className="label">Median:</span>
-                      <span className="value">{columnStats.median?.toFixed(2)}</span>
-                    </div>
-                    <div className="stat-item">
-                      <span className="label">Min:</span>
-                      <span className="value">{columnStats.min?.toFixed(2)}</span>
-                    </div>
-                    <div className="stat-item">
-                      <span className="label">Max:</span>
-                      <span className="value">{columnStats.max?.toFixed(2)}</span>
-                    </div>
-                  </>
+                  <Grid container spacing={2} sx={{ mb: 2 }}>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                      <Typography variant="body2" color="text.secondary">Mean</Typography>
+                      <Typography variant="body1">{columnStats.mean?.toFixed(2)}</Typography>
+                    </Grid>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                      <Typography variant="body2" color="text.secondary">Median</Typography>
+                      <Typography variant="body1">{columnStats.median?.toFixed(2)}</Typography>
+                    </Grid>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                      <Typography variant="body2" color="text.secondary">Min</Typography>
+                      <Typography variant="body1">{columnStats.min?.toFixed(2)}</Typography>
+                    </Grid>
+                    <Grid size={{ xs: 6, sm: 3 }}>
+                      <Typography variant="body2" color="text.secondary">Max</Typography>
+                      <Typography variant="body1">{columnStats.max?.toFixed(2)}</Typography>
+                    </Grid>
+                  </Grid>
                 )}
 
                 {columnStats.top_values && (
-                  <div className="top-values">
-                    <h4>Top Values:</h4>
-                    <div className="top-values-list">
+                  <Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      Top Values
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                       {Object.entries(columnStats.top_values).map(([value, count]) => (
-                        <div key={value} className="top-value-item">
-                          <span className="value-text">{value}:</span>
-                          <span className="value-count">{count as number}</span>
-                        </div>
+                        <Chip
+                          key={value}
+                          label={`${value}: ${count}`}
+                          size="small"
+                          variant="outlined"
+                        />
                       ))}
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
                 )}
-              </div>
+              </>
             )}
-          </div>
+          </Paper>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Box>
   );
 }

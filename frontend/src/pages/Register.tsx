@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import {
+  Box,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Link,
+  Alert,
+  CircularProgress,
+  Grid2 as Grid,
+} from '@mui/material';
 import { authService } from '../services/auth';
 import { getErrorMessage } from '../services/api';
 
@@ -38,11 +50,19 @@ const Register: React.FC = () => {
   const [success, setSuccess] = useState(false);
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(schema),
+    defaultValues: {
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      firstName: '',
+      lastName: '',
+    },
   });
 
   const onSubmit = async (data: FormData) => {
@@ -71,115 +91,185 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      {success && (
-        <div className="success-message">
-          Registration successful! Redirecting to login...
-        </div>
-      )}
-      {error && (
-        <div className="error-alert">{error}</div>
-      )}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="username">Username *</label>
-          <input
-            type="text"
-            id="username"
-            {...register('username')}
-            disabled={isLoading}
-          />
-          {errors.username && (
-            <span className="error-message">
-              {errors.username.message}
-            </span>
-          )}
-        </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'background.default',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            backgroundColor: 'background.paper',
+            border: 1,
+            borderColor: 'divider',
+          }}
+        >
+          <Box sx={{ mb: 4, textAlign: 'center' }}>
+            <Typography variant="h4" component="h1" sx={{ mb: 1 }}>
+              Create Account
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Join Jabiru to start analyzing your data
+            </Typography>
+          </Box>
 
-        <div>
-          <label htmlFor="email">Email *</label>
-          <input
-            type="email"
-            id="email"
-            {...register('email')}
-            disabled={isLoading}
-          />
-          {errors.email && (
-            <span className="error-message">
-              {errors.email.message}
-            </span>
+          {success && (
+            <Alert severity="success" sx={{ mb: 3 }}>
+              Registration successful! Redirecting to login...
+            </Alert>
           )}
-        </div>
 
-        <div>
-          <label htmlFor="password">Password *</label>
-          <input
-            type="password"
-            id="password"
-            {...register('password')}
-            disabled={isLoading}
-          />
-          {errors.password && (
-            <span className="error-message">
-              {errors.password.message}
-            </span>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
           )}
-        </div>
 
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password *</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            {...register('confirmPassword')}
-            disabled={isLoading}
-          />
-          {errors.confirmPassword && (
-            <span className="error-message">
-              {errors.confirmPassword.message}
-            </span>
-          )}
-        </div>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Controller
+              name="username"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Username"
+                  margin="normal"
+                  error={!!errors.username}
+                  helperText={errors.username?.message}
+                  disabled={isLoading}
+                  autoComplete="username"
+                  autoFocus
+                />
+              )}
+            />
 
-        <div>
-          <label htmlFor="firstName">First Name</label>
-          <input
-            type="text"
-            id="firstName"
-            {...register('firstName')}
-            disabled={isLoading}
-          />
-          {errors.firstName && (
-            <span className="error-message">
-              {errors.firstName.message}
-            </span>
-          )}
-        </div>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type="email"
+                  label="Email"
+                  margin="normal"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  disabled={isLoading}
+                  autoComplete="email"
+                />
+              )}
+            />
 
-        <div>
-          <label htmlFor="lastName">Last Name</label>
-          <input
-            type="text"
-            id="lastName"
-            {...register('lastName')}
-            disabled={isLoading}
-          />
-          {errors.lastName && (
-            <span className="error-message">
-              {errors.lastName.message}
-            </span>
-          )}
-        </div>
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type="password"
+                  label="Password"
+                  margin="normal"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                />
+              )}
+            />
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Registering...' : 'Register'}
-        </button>
-      </form>
-      <p>
-        Already have an account? <Link to="/login">Login here</Link>
-      </p>
-    </div>
+            <Controller
+              name="confirmPassword"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  type="password"
+                  label="Confirm Password"
+                  margin="normal"
+                  error={!!errors.confirmPassword}
+                  helperText={errors.confirmPassword?.message}
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                />
+              )}
+            />
+
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid size={6}>
+                <Controller
+                  name="firstName"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="First Name (Optional)"
+                      error={!!errors.firstName}
+                      helperText={errors.firstName?.message}
+                      disabled={isLoading}
+                      autoComplete="given-name"
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid size={6}>
+                <Controller
+                  name="lastName"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Last Name (Optional)"
+                      error={!!errors.lastName}
+                      helperText={errors.lastName?.message}
+                      disabled={isLoading}
+                      autoComplete="family-name"
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              disabled={isLoading || success}
+              sx={{ mt: 3, mb: 2 }}
+            >
+              {isLoading ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  Creating Account...
+                </>
+              ) : (
+                'Create Account'
+              )}
+            </Button>
+          </form>
+
+          <Typography variant="body2" align="center" color="text.secondary">
+            Already have an account?{' '}
+            <Link component={RouterLink} to="/login" underline="hover">
+              Sign in here
+            </Link>
+          </Typography>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

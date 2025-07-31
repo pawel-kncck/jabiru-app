@@ -1,3 +1,4 @@
+# backend/src/api/v1/endpoints/files.py
 import os
 import mimetypes
 from typing import List, Dict, Any
@@ -18,6 +19,7 @@ from src.config import get_settings
 router = APIRouter()
 settings = get_settings()
 
+# Create storage instance with settings
 storage = LocalFileStorage(settings.UPLOAD_DIRECTORY)
 
 ALLOWED_EXTENSIONS = {'.csv', '.txt', '.json'}
@@ -177,7 +179,37 @@ def preview_file(
             detail="Preview only available for CSV files"
         )
 
+    # Get the full file path
     file_path = storage.get_full_path(file.path)
+
+    # Debug logging to help identify path issues
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Attempting to preview file: {file.filename}")
+    logger.info(f"Database path: {file.path}")
+    logger.info(f"Full path: {file_path}")
+    logger.info(f"File exists: {file_path.exists()}")
+
+    # Check if file exists
+    if not file_path.exists():
+        # Try alternative path resolution for backward compatibility
+        # This handles files that might have been uploaded with different path structures
+        alternative_paths = [
+            Path(settings.UPLOAD_DIRECTORY) / file.path,
+            Path(file.path),  # Absolute path stored in DB
+            Path(settings.UPLOAD_DIRECTORY) / file.project_id / file.filename,
+        ]
+
+        for alt_path in alternative_paths:
+            if alt_path.exists():
+                file_path = alt_path
+                logger.info(f"Found file at alternative path: {alt_path}")
+                break
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"File not found on disk. Looked in: {file_path} and alternative paths"
+            )
 
     try:
         df, metadata = DataProcessingService.parse_csv_file(file_path)
@@ -188,6 +220,7 @@ def preview_file(
             "metadata": metadata
         }
     except Exception as e:
+        logger.error(f"Error processing file: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error processing file: {str(e)}"
@@ -218,7 +251,26 @@ def get_column_statistics(
             detail="Statistics only available for CSV files"
         )
 
+    # Use the same path resolution logic as preview
     file_path = storage.get_full_path(file.path)
+
+    # Check if file exists with fallback logic
+    if not file_path.exists():
+        alternative_paths = [
+            Path(settings.UPLOAD_DIRECTORY) / file.path,
+            Path(file.path),
+            Path(settings.UPLOAD_DIRECTORY) / file.project_id / file.filename,
+        ]
+
+        for alt_path in alternative_paths:
+            if alt_path.exists():
+                file_path = alt_path
+                break
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found on disk"
+            )
 
     try:
         df, _ = DataProcessingService.parse_csv_file(file_path)

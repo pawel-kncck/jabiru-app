@@ -1,28 +1,14 @@
 import api from './api';
-
-export interface FileInfo {
-  id: string;
-  filename: string;
-  path: string;
-  size: number;
-  mime_type: string | null;
-  project_id: string;
-  uploaded_by: string;
-  created_at: string;
-}
-
-export interface FileListResponse {
-  files: FileInfo[];
-  total: number;
-}
+import type { FileMetadata, FilePreviewResponse, ColumnStatistics } from '../types/file';
 
 export const filesService = {
-  async uploadFile(projectId: string, file: File): Promise<FileInfo> {
+  async uploadFile(file: File, projectId: number): Promise<FileMetadata> {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('project_id', projectId.toString());
     
-    const response = await api.post<FileInfo>(
-      `/projects/${projectId}/files`,
+    const response = await api.post<FileMetadata>(
+      `/files/upload`,
       formData,
       {
         headers: {
@@ -42,22 +28,15 @@ export const filesService = {
     return response.data;
   },
 
-  async listProjectFiles(
-    projectId: string,
-    skip = 0,
-    limit = 100
-  ): Promise<FileListResponse> {
-    const response = await api.get<FileListResponse>(
-      `/projects/${projectId}/files`,
-      {
-        params: { skip, limit },
-      }
+  async getProjectFiles(projectId: number): Promise<{ data: FileMetadata[] }> {
+    const response = await api.get<FileMetadata[]>(
+      `/files/project/${projectId}`
     );
     
-    return response.data;
+    return { data: response.data };
   },
 
-  async deleteFile(fileId: string): Promise<void> {
+  async deleteFile(fileId: number): Promise<void> {
     await api.delete(`/files/${fileId}`);
   },
 
@@ -79,15 +58,15 @@ export const filesService = {
     return this.getFileExtension(filename) === 'csv';
   },
 
-  async getFilePreview(fileId: string, rows = 100): Promise<any> {
-    const response = await api.get(`/files/${fileId}/preview`, {
+  async getFilePreview(fileId: number, rows = 100): Promise<FilePreviewResponse> {
+    const response = await api.get<FilePreviewResponse>(`/files/${fileId}/preview`, {
       params: { rows },
     });
     return response.data;
   },
 
-  async getColumnStatistics(fileId: string, columnName: string): Promise<any> {
-    const response = await api.get(
+  async getColumnStatistics(fileId: number, columnName: string): Promise<ColumnStatistics> {
+    const response = await api.get<ColumnStatistics>(
       `/files/${fileId}/column-stats/${columnName}`
     );
     return response.data;

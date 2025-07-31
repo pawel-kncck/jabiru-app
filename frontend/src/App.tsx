@@ -1,116 +1,104 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { Box, CircularProgress } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Sidebar } from './components/Layout/Sidebar';
+import { ProjectView } from './components/ProjectView/ProjectView';
+import { darkTheme } from './theme/theme';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
-import { ProjectDetail } from './pages/ProjectDetail';
-import { CanvasEditor } from './pages/CanvasEditor';
 import './App.css';
 
-function Navigation() {
-  const { isAuthenticated, user, logout } = useAuth();
+function AppLayout({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <>{children}</>;
+  }
 
   return (
-    <nav>
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-        {!isAuthenticated ? (
-          <>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-            <li>
-              <Link to="/register">Register</Link>
-            </li>
-          </>
-        ) : (
-          <>
-            <li>
-              <Link to="/dashboard">Dashboard</Link>
-            </li>
-            <li>
-              <Link to="/projects">Projects</Link>
-            </li>
-            <li>
-              <span>Welcome, {user?.username}!</span>
-            </li>
-            <li>
-              <button onClick={logout} style={{ background: 'none', border: 'none', color: '#646cff', cursor: 'pointer', textDecoration: 'underline' }}>
-                Logout
-              </button>
-            </li>
-          </>
-        )}
-      </ul>
-    </nav>
+    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: 'background.default' }}>
+      <Sidebar />
+      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+        {children}
+      </Box>
+    </Box>
   );
 }
 
 function AppContent() {
-  const { isLoading } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          backgroundColor: 'background.default',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <>
-      <Navigation />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
+    <Routes>
+      <Route path="/" element={!isAuthenticated ? <Home /> : <Navigate to="/dashboard" />} />
+      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
+      <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
               <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/projects"
-          element={
-            <ProtectedRoute>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/projects"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
               <Projects />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/projects/:projectId"
-          element={
-            <ProtectedRoute>
-              <ProjectDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/canvas/:canvasId"
-          element={
-            <ProtectedRoute>
-              <CanvasEditor />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/project/:projectId"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <ProjectView />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <div className="App">
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Router>
+        <AuthProvider>
           <AppContent />
-        </div>
-      </AuthProvider>
-    </Router>
+        </AuthProvider>
+      </Router>
+    </ThemeProvider>
   );
 }
 

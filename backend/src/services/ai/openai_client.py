@@ -62,7 +62,7 @@ class OpenAIClient:
         
         return round(input_cost + output_cost, 4)
     
-    async def complete(
+    def complete(
         self,
         messages: List[Dict[str, str]],
         temperature: float = 0.7,
@@ -79,7 +79,7 @@ class OpenAIClient:
         
         # Make API request
         try:
-            response = await self.client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 temperature=temperature,
@@ -113,11 +113,11 @@ class OpenAIClient:
         except Exception as e:
             raise Exception(f"OpenAI API error: {str(e)}")
     
-    async def health_check(self) -> bool:
+    def health_check(self) -> bool:
         """Check if OpenAI API is accessible"""
         try:
             # Use a minimal request to test connectivity
-            await self.complete(
+            self.complete(
                 messages=[{"role": "user", "content": "Hi"}],
                 max_tokens=5,
                 use_cache=False

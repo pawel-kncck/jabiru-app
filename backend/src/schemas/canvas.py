@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, field_serializer
+from pydantic import BaseModel
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from uuid import UUID
@@ -18,20 +18,15 @@ class CanvasUpdate(BaseModel):
 
 
 class Canvas(CanvasBase):
-    id: str
-    project_id: str
+    id: UUID
+    project_id: UUID
     content_json: Dict[str, Any]
-    created_by: str
+    created_by: UUID
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
-
-    @field_serializer('id', 'project_id', 'created_by')
-    def serialize_uuid(self, value: UUID) -> str:
-        if isinstance(value, UUID):
-            return str(value)
-        return value
+    class Config:
+        from_attributes = True
 
 
 class CanvasList(BaseModel):

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { projectService } from '../services/projects';
+import { projectsService } from '../services/projects';
 import type { Project, ProjectCreate } from '../types/project';
 
 const Projects: React.FC = () => {
@@ -26,9 +26,9 @@ const Projects: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await projectService.getProjects();
-      setProjects(response.projects);
-      setTotal(response.total);
+      const response = await projectsService.getProjects();
+      setProjects(response.data);
+      setTotal(response.data.length);
     } catch (err) {
       setError('Failed to load projects');
       console.error('Error loading projects:', err);
@@ -47,7 +47,7 @@ const Projects: React.FC = () => {
     try {
       setCreateLoading(true);
       setError(null);
-      const newProject = await projectService.createProject(createFormData);
+      const newProject = await projectsService.createProject(createFormData);
       setProjects([newProject, ...projects]);
       setTotal(total + 1);
       setShowCreateForm(false);
@@ -60,13 +60,13 @@ const Projects: React.FC = () => {
     }
   };
 
-  const handleDeleteProject = async (projectId: string) => {
+  const handleDeleteProject = async (projectId: number) => {
     if (!window.confirm('Are you sure you want to delete this project?')) {
       return;
     }
 
     try {
-      await projectService.deleteProject(projectId);
+      await projectsService.deleteProject(projectId);
       setProjects(projects.filter((p) => p.id !== projectId));
       setTotal(total - 1);
     } catch (err) {
@@ -160,7 +160,7 @@ const Projects: React.FC = () => {
               <div className="project-actions">
                 <button
                   className="view-btn"
-                  onClick={() => navigate(`/projects/${project.id}`)}
+                  onClick={() => navigate(`/project/${project.id}`)}
                 >
                   View
                 </button>

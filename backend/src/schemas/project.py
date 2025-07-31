@@ -9,6 +9,7 @@ class ProjectBase(BaseModel):
     """Base project schema"""
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
+    context: Optional[str] = None
 
 
 class ProjectCreate(ProjectBase):
@@ -20,6 +21,7 @@ class ProjectUpdate(BaseModel):
     """Schema for updating a project"""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
+    context: Optional[str] = None
 
 
 class ProjectInDB(ProjectBase):

@@ -35,5 +35,8 @@
     "business-intelligence"
   ],
   "author": "Jabiru Team",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@mui/icons-material": "^7.2.0"
+  }
 }

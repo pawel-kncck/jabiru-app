@@ -1,17 +1,18 @@
 import React, { useState, useRef, DragEvent } from 'react';
+import { Box, Typography, CircularProgress, Alert } from '@mui/material';
+import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import { filesService } from '../services/files';
-import './FileUpload.css';
 
 interface FileUploadProps {
-  projectId: string;
-  onUploadSuccess: () => void;
+  projectId: number;
+  onFileSelect: (file: File) => Promise<void>;
   accept?: string;
   maxSize?: number;
 }
 
 export function FileUpload({
   projectId,
-  onUploadSuccess,
+  onFileSelect,
   accept = '.csv',
   maxSize = 10 * 1024 * 1024, // 10MB
 }: FileUploadProps) {
@@ -50,23 +51,21 @@ export function FileUpload({
     }
 
     setIsUploading(true);
+    setUploadProgress(0);
 
     try {
-      // Use the filesService to upload the file
-      await filesService.uploadFile(projectId, file);
-
-      setTimeout(() => {
-        setIsUploading(false);
-        onUploadSuccess();
-      }, 500);
+      await onFileSelect(file);
+      setIsUploading(false);
+      setUploadProgress(100);
+      setTimeout(() => setUploadProgress(0), 500);
     } catch (err) {
-      // getErrorMessage is not exported from api.ts, so we'll handle it simply
       const errorMessage =
         (err as any)?.response?.data?.detail ||
         (err as Error).message ||
         'Upload failed';
       setError(errorMessage);
       setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -110,11 +109,23 @@ export function FileUpload({
   };
 
   return (
-    <div className="file-upload-container">
-      <div
-        className={`file-upload-dropzone ${isDragging ? 'dragging' : ''} ${
-          isUploading ? 'uploading' : ''
-        }`}
+    <Box>
+      <Box
+        sx={{
+          border: 2,
+          borderStyle: 'dashed',
+          borderColor: isDragging ? 'primary.main' : 'divider',
+          borderRadius: 2,
+          p: 4,
+          textAlign: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          backgroundColor: isDragging ? 'action.hover' : 'transparent',
+          '&:hover': {
+            borderColor: 'primary.main',
+            backgroundColor: 'action.hover',
+          },
+        }}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
@@ -130,29 +141,33 @@ export function FileUpload({
         />
 
         {isUploading ? (
-          <div className="upload-progress">
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${uploadProgress}%` }}
-              />
-            </div>
-            <p>Uploading... {uploadProgress}%</p>
-          </div>
+          <Box>
+            <CircularProgress size={48} sx={{ mb: 2 }} />
+            <Typography variant="body1">
+              Uploading... {uploadProgress}%
+            </Typography>
+          </Box>
         ) : (
           <>
-            <div className="upload-icon">📁</div>
-            <p className="upload-text">
-              Drag and drop your CSV file here, or click to browse
-            </p>
-            <p className="upload-hint">
-              Maximum file size: {(maxSize / 1024 / 1024).toFixed(0)}MB
-            </p>
+            <CloudUploadIcon
+              sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }}
+            />
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              Drag and drop your files here, or click to browse
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Supported formats: {accept} • Maximum size:{' '}
+              {(maxSize / 1024 / 1024).toFixed(0)}MB
+            </Typography>
           </>
         )}
-      </div>
+      </Box>
 
-      {error && <div className="upload-error">⚠️ {error}</div>}
-    </div>
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+    </Box>
   );
 }
