@@ -76,3 +76,7 @@ coverage/
 .cache/
 tmp/
 temp/
+
+#Private Dev Notes
+tech_stack_high_level.md
+debugging/

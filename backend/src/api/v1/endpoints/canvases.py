@@ -21,13 +21,13 @@ def get_project_or_404(
         Project.id == project_id,
         Project.owner_id == user_id
     ).first()
-    
+
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
-    
+
     return project
 
 
@@ -39,17 +39,17 @@ def create_canvas(
     db: Session = Depends(get_db)
 ):
     project = get_project_or_404(project_id, current_user.id, db)
-    
+
     db_canvas = Canvas(
         name=canvas_data.name,
         project_id=project_id,
         created_by=current_user.id
     )
-    
+
     db.add(db_canvas)
     db.commit()
     db.refresh(db_canvas)
-    
+
     return db_canvas
 
 
@@ -62,12 +62,26 @@ def list_canvases(
     db: Session = Depends(get_db)
 ):
     project = get_project_or_404(project_id, current_user.id, db)
-    
+
     query = db.query(Canvas).filter(Canvas.project_id == project_id)
     total = query.count()
     canvases = query.offset(skip).limit(limit).all()
-    
-    return CanvasList(canvases=canvases, total=total)
+
+    # Convert UUID fields to strings
+    canvases_data = []
+    for canvas in canvases:
+        canvas_dict = {
+            'id': str(canvas.id),
+            'name': canvas.name,
+            'project_id': str(canvas.project_id),
+            'content_json': canvas.content_json,
+            'created_by': str(canvas.created_by),
+            'created_at': canvas.created_at,
+            'updated_at': canvas.updated_at
+        }
+        canvases_data.append(canvas_dict)
+
+    return CanvasList(canvases=canvases_data, total=total)
 
 
 @router.get("/canvases/{canvas_id}", response_model=CanvasSchema)
@@ -80,13 +94,13 @@ def get_canvas(
         Canvas.id == canvas_id,
         Project.owner_id == current_user.id
     ).first()
-    
+
     if not canvas:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Canvas not found"
         )
-    
+
     return canvas
 
 
@@ -101,20 +115,20 @@ def update_canvas(
         Canvas.id == canvas_id,
         Project.owner_id == current_user.id
     ).first()
-    
+
     if not canvas:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Canvas not found"
         )
-    
+
     update_data = canvas_update.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(canvas, field, value)
-    
+
     db.commit()
     db.refresh(canvas)
-    
+
     return canvas
 
 
@@ -128,14 +142,14 @@ def delete_canvas(
         Canvas.id == canvas_id,
         Project.owner_id == current_user.id
     ).first()
-    
+
     if not canvas:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Canvas not found"
         )
-    
+
     db.delete(canvas)
     db.commit()
-    
+
     return {"detail": "Canvas deleted successfully"}
