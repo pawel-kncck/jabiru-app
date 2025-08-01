@@ -1,11 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './'),
+      '@/components': path.resolve(__dirname, './components'),
+    },
+  },
   server: {
     port: 8080,
-    strictPort: true, // fail if port is already in use
-    // open: true, // automatically open browser
+    strictPort: true,
+    host: true, // This allows access from network
   },
 });
