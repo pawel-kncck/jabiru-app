@@ -69,7 +69,7 @@ export function ChatTab() {
         'This is excellent! Can you also analyze the seasonal trends in our data? I want to understand how to optimize inventory and marketing spend throughout the year.',
       timestamp: new Date(),
     },
-    {t
+    {
       id: '9',
       role: 'assistant',
       content:
