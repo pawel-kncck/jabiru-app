@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Plus, Mic } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -141,47 +141,55 @@ export function ChatTab() {
     }
   };
 
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Scroll to bottom when new messages arrive
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col min-h-0">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
-        <ScrollArea className="h-full">
-          <div className="p-6 space-y-6">
-            {messages.map((message) => (
-              <div key={message.id}>
-                {message.role === 'user' ? (
-                  /* User message - right aligned bubble */
-                  <div className="flex justify-end">
-                    <div className="max-w-[80%]">
-                      <div className="bg-gray-600 rounded-2xl rounded-br-md px-4 py-3">
-                        <div className="text-[#ECECF1] whitespace-pre-wrap">
-                          {message.content}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* AI Assistant message - left aligned with avatar */
-                  <div className="flex space-x-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-600">
-                      <Bot className="h-4 w-4 text-blue-400" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="text-sm text-gray-400">AI Assistant</div>
+
+      <ScrollArea className="flex-1" ref={scrollAreaRef}>
+        <div className="p-6 space-y-6">
+          {messages.map((message) => (
+            <div key={message.id}>
+              {message.role === 'user' ? (
+                /* User message - right aligned bubble */
+                <div className="flex justify-end">
+                  <div className="max-w-[80%]">
+                    <div className="bg-gray-600 rounded-2xl rounded-br-md px-4 py-3">
                       <div className="text-[#ECECF1] whitespace-pre-wrap">
                         {message.content}
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
+                </div>
+              ) : (
+                /* AI Assistant message - left aligned with avatar */
+                <div className="flex space-x-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-600">
+                    <Bot className="h-4 w-4 text-blue-400" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <div className="text-sm text-gray-400">AI Assistant</div>
+                    <div className="text-[#ECECF1] whitespace-pre-wrap">
+                      {message.content}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
 
       {/* Input - Fixed at bottom */}
-      <div className="p-6 bg-[#343541]">
+      <div className="flex-shrink-0 p-6 bg-[#343541] border-t border-gray-600">
         {/* Chat Input Container */}
         <div className="bg-gray-700 rounded-2xl border border-gray-600 p-4">
           <div className="flex items-center space-x-3">

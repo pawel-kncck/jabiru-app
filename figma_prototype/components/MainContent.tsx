@@ -57,7 +57,7 @@ export function MainContent({
           <TabsContent value="context" className="h-full m-0">
             <ContextTab />
           </TabsContent>
-          <TabsContent value="chat" className="h-full m-0">
+          <TabsContent value="chat" className="h-full m-0 overflow-hidden">
             <ChatTab />
           </TabsContent>
         </div>

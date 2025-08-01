@@ -8,7 +8,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('chat');
 
   return (
-    <div className="h-screen flex bg-[#343541] text-[#ECECF1] dark overflow-hidden">
+    <div className="h-screen flex bg-[#343541] text-[#ECECF1] overflow-hidden">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
