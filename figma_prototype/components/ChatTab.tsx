@@ -142,11 +142,11 @@ export function ChatTab() {
   };
 
   return (
-    <div className="relative h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Messages */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
         <ScrollArea className="h-full">
-          <div className="p-6 pb-32 space-y-6">
+          <div className="p-6 space-y-6">
             {messages.map((message) => (
               <div key={message.id}>
                 {message.role === 'user' ? (
@@ -181,7 +181,7 @@ export function ChatTab() {
       </div>
 
       {/* Input - Fixed at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 bg-[#343541]">
+      <div className="p-6 bg-[#343541]">
         {/* Chat Input Container */}
         <div className="bg-gray-700 rounded-2xl border border-gray-600 p-4">
           <div className="flex items-center space-x-3">

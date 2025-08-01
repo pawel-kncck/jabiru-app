@@ -8,14 +8,14 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('chat');
 
   return (
-    <div className="h-screen flex bg-[#343541] text-[#ECECF1] dark">
-      <Sidebar 
+    <div className="h-screen flex bg-[#343541] text-[#ECECF1] dark overflow-hidden">
+      <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         currentProject={currentProject}
         onProjectSelect={setCurrentProject}
       />
-      <MainContent 
+      <MainContent
         projectName={currentProject}
         activeTab={activeTab}
         onTabChange={setActiveTab}

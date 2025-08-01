@@ -9,9 +9,13 @@ interface MainContentProps {
   onTabChange: (tab: string) => void;
 }
 
-export function MainContent({ projectName, activeTab, onTabChange }: MainContentProps) {
+export function MainContent({
+  projectName,
+  activeTab,
+  onTabChange,
+}: MainContentProps) {
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="p-6">
         <h1 className="text-2xl text-[#ECECF1]">{projectName}</h1>
@@ -19,22 +23,26 @@ export function MainContent({ projectName, activeTab, onTabChange }: MainContent
       <div className="border-b border-gray-600 mx-6"></div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={onTabChange} className="flex-1 flex flex-col">
+      <Tabs
+        value={activeTab}
+        onValueChange={onTabChange}
+        className="flex-1 flex flex-col"
+      >
         <TabsList className="bg-transparent rounded-none px-6">
-          <TabsTrigger 
-            value="data-studio" 
+          <TabsTrigger
+            value="data-studio"
             className="data-[state=active]:bg-gray-600 data-[state=active]:text-[#ECECF1] text-gray-400"
           >
             Data Studio
           </TabsTrigger>
-          <TabsTrigger 
-            value="context" 
+          <TabsTrigger
+            value="context"
             className="data-[state=active]:bg-gray-600 data-[state=active]:text-[#ECECF1] text-gray-400"
           >
             Context
           </TabsTrigger>
-          <TabsTrigger 
-            value="chat" 
+          <TabsTrigger
+            value="chat"
             className="data-[state=active]:bg-gray-600 data-[state=active]:text-[#ECECF1] text-gray-400"
           >
             Chat
